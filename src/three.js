@@ -1,7 +1,9 @@
 import "./App.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-
+import backgroundImg from "../public/images/space.jpg";
+import moonImg from "../public/images/moon.jpg";
+import normalImg from "../public/images/normal.jpg";
 // Setup
 
 const scene = new THREE.Scene();
@@ -65,24 +67,24 @@ Array(200).fill().forEach(addStar);
 
 // Background
 
-const spaceTexture = new THREE.TextureLoader().load("/space.jpg");
+const spaceTexture = new THREE.TextureLoader().load(backgroundImg);
 scene.background = spaceTexture;
 
 // Avatar
 
-const userTexture = new THREE.TextureLoader().load("/minhportrait.jpg");
+// const userTexture = new THREE.TextureLoader().load("/minhportrait.jpg");
 
-const user = new THREE.Mesh(
-  new THREE.BoxGeometry(4, 3, 3),
-  new THREE.MeshBasicMaterial({ map: userTexture })
-);
+// const user = new THREE.Mesh(
+//   new THREE.BoxGeometry(4, 3, 3),
+//   new THREE.MeshBasicMaterial({ map: userTexture })
+// );
 
 // scene.add(user);
 
 // Moon
 
-const moonTexture = new THREE.TextureLoader().load("/moon.jpg");
-const normalTexture = new THREE.TextureLoader().load("/normal.jpg");
+const moonTexture = new THREE.TextureLoader().load(moonImg);
+const normalTexture = new THREE.TextureLoader().load(normalImg);
 
 const moon = new THREE.Mesh(
   new THREE.SphereGeometry(3, 32, 32),
@@ -97,8 +99,8 @@ scene.add(moon);
 moon.position.z = 30;
 moon.position.setX(-10);
 
-user.position.z = -5;
-user.position.x = 2;
+// user.position.z = -5;
+// user.position.x = 2;
 
 // Scroll Animation
 
@@ -108,8 +110,8 @@ function moveCamera() {
   moon.rotation.y += 0.055;
   moon.rotation.z += 0.03;
 
-  user.rotation.y += 0.02;
-  user.rotation.z += 0.02;
+  // user.rotation.y += 0.02;
+  // user.rotation.z += 0.02;
 
   camera.position.z = t * -0.01;
   camera.position.x = t * -0.0002;
@@ -123,8 +125,8 @@ moveCamera();
 
 function animate() {
   requestAnimationFrame(animate);
-  user.rotation.x += 0.003;
-  user.rotation.y += 0.003;
+  // user.rotation.x += 0.003;
+  // user.rotation.y += 0.003;
 
   torus.rotation.x += 0.01;
   torus.rotation.y += 0.005;

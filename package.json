@@ -1,6 +1,6 @@
 {
-  "homepage" : "https://dtminh.github.io",
-  "name": "minhdt-portfolio",
+  "homepage" : "https://minhduongt.github.io/portfolio/",
+  "name": "portfolio",
   "private": true,
   "version": "0.0.0",
   "type": "module",
