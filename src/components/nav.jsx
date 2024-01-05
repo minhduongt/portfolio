@@ -24,13 +24,14 @@ const Links = [
     id: "#about",
     name: "About",
   },
-  {
-    id: "#work-history",
-    name: "Work History",
-  },
+
   {
     id: "#projects",
     name: "Projects",
+  },
+  {
+    id: "#work-history",
+    name: "Work History",
   },
 ];
 

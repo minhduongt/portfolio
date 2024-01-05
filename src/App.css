@@ -1,7 +1,7 @@
 @import url("https://use.typekit.net/jmk3xov.css");
 
 :root {
-  --dark-bg: rgba(15, 15, 15, 0.95);
+  --dark-bg: rgba(15, 15, 15, 0.829);
   --spacing: 350px;
 
   font-family: brandon-grotesque, sans-serif;
@@ -67,7 +67,7 @@ blockquote {
 
 blockquote p {
   color: black;
-  background-color: white;
+  background-color: #ffffff95;
   font-size: 4rem;
   display: inline;
   line-height: 1;
