@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import "./App.css";
-import { Flex, Stack, Text } from "@chakra-ui/react";
+import { Box, Flex, Spinner, Stack, Text } from "@chakra-ui/react";
 import NavigationBar from "./components/nav";
 import ScrollToTop from "./components/scrollToTop";
 import InfiniteScroll from "./components/infiniteScroll";
@@ -16,6 +16,16 @@ const projects = [
     description: "Manage posts on many social sites",
   },
 ];
+const programLangs = ["JavaScript + TypeScript", "C#", "Dart"];
+const feTechs = [
+  "React JS",
+  "Next JS",
+  "HTML + CSS",
+  "Flutter",
+  "React Native",
+];
+const beTechs = ["ASP.NET", "Node JS", "Rest APIs", "SQL Server"];
+const otherTechs = ["UX/UI", "Figma", "Firebase", "Git", "Agile", "Scrum"];
 
 function App() {
   const [limit, setLimit] = useState(5);
@@ -34,20 +44,23 @@ function App() {
   }, [limit]);
 
   return (
-    <Stack>
+    <Stack width={"100vw"}>
       <NavigationBar />
       <Stack className="main" px="5rem" pt="10rem">
         <header>
           <h1>Duong Tan Minh</h1>
           <h4>Web Developer</h4>
-          <p>🚀 Welcome to my website!</p>
+          <p>😄 Welcome to my website!</p>
         </header>
 
-        <blockquote>
-          <p>I like making website catchy, cheesy and easy to experience</p>
+        <blockquote id="about">
+          <p>
+            I like making website and application catchy, cheesy and easy to
+            experience and also work properly
+          </p>
         </blockquote>
 
-        <section id="about">
+        <section>
           <h2>📜 About</h2>
           <p>
             I am an endurable and flexible developer. My career objective is
@@ -66,19 +79,45 @@ function App() {
             reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
             pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
             culpa qui officia deserunt mollit anim id est laborum.
-          </p>
-
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
           </p> */}
         </section>
-
+        <section id="techs">
+          <h2>🚀 Main Technologies</h2>
+          <Stack>
+            <Text fontSize={"large"}>Programming Languages</Text>
+            <Stack flexDirection={"row"} gap={5}>
+              {programLangs.map((tech) => (
+                <li key={tech} fontSize={"medium"}>
+                  {tech}
+                </li>
+              ))}
+            </Stack>
+            <Text fontSize={"large"}>Frontend</Text>
+            <Stack flexDirection={"row"} gap={5}>
+              {feTechs.map((tech) => (
+                <li key={tech} fontSize={"medium"}>
+                  {tech}
+                </li>
+              ))}
+            </Stack>
+            <Text fontSize={"large"}>Backend</Text>
+            <Stack flexDirection={"row"} gap={5}>
+              {beTechs.map((tech) => (
+                <li key={tech} fontSize={"medium"}>
+                  {tech}
+                </li>
+              ))}
+            </Stack>
+            <Text fontSize={"large"}>Others</Text>
+            <Stack flexDirection={"row"} gap={5}>
+              {otherTechs.map((tech) => (
+                <li key={tech} fontSize={"medium"}>
+                  {tech}
+                </li>
+              ))}
+            </Stack>
+          </Stack>
+        </section>
         <section className="light" id="projects">
           <h2>👩🏽‍🚀 Projects</h2>
           <Flex px={"2rem"} justifyContent={"space-between"}>
@@ -149,11 +188,16 @@ function App() {
           Let see some motivating quotes today !
         </Text>
         <InfiniteScroll
-          loader={<p>loading...</p>}
+          loader={
+            <Flex justifyContent={"center"} alignItems={"center"} gap={5}>
+              <Spinner size="md" />
+              <Text fontSize={"large"}>Getting more quotes for you...</Text>
+            </Flex>
+          }
           fetchMore={() => setLimit((prev) => prev + 5)}
           hasMore={quotes.length < totalRows}
           endMessage={
-            <Text fontSize={"4rem"} color={"#ffd17b"}>
+            <Text fontSize={"4rem"} color={"#ffd17b"} textAlign={"center"}>
               You have seen it all! Thanks for surfing, Hope you have a great
               day!
             </Text>

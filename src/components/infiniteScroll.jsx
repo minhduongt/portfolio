@@ -13,7 +13,9 @@ const InfiniteScroll = ({
     if (hasMore) {
       const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
-          fetchMore();
+          setTimeout(() => {
+            fetchMore();
+          }, 1000);
         }
       });
 

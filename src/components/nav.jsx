@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -34,27 +34,61 @@ const Links = [
     name: "Work History",
   },
 ];
+function useScrollDirection() {
+  const [scrollDirection, setScrollDirection] = useState(null);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+
+    const updateScrollDirection = () => {
+      const scrollY = window.scrollY;
+      const direction = scrollY > lastScrollY ? "down" : "up";
+      if (
+        direction !== scrollDirection &&
+        (scrollY - lastScrollY > 10 || scrollY - lastScrollY < -10)
+      ) {
+        setScrollDirection(direction);
+      }
+      lastScrollY = scrollY > 0 ? scrollY : 0;
+    };
+    window.addEventListener("scroll", updateScrollDirection); // add event listener
+    return () => {
+      window.removeEventListener("scroll", updateScrollDirection); // clean up
+    };
+  }, [scrollDirection]);
+
+  return scrollDirection;
+}
 
 export default function NavigationBar() {
+  const [isTop, setTop] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const onScroll = (id) => {
+  const scrollDirection = useScrollDirection();
+  const onClickScroll = (id) => {
     console.log(id);
     const section = document.querySelector(id);
     section.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-
+  const onScroll = () => {
+    setTop(document.documentElement.scrollTop < 30);
+  };
+  useEffect(() => {
+    document.addEventListener("scroll", onScroll);
+    // Remove listener on unmount
+    return () => document.removeEventListener("scroll", onScroll);
+  }, []);
   return (
     <>
-      <Box
-        bg={"#00000095"}
+      <Flex
+        // borderTop={isTop ? "solid 2px #ffbb00" : ""}
         px={4}
-        sx={{
-          position: "fixed",
-          zIndex: 99,
-          width: "100%",
-          boxSizing: "border-box",
-        }}
+        h={"5rem"}
+        w="100%"
+        position={"fixed"}
+        top={isTop ? "0" : scrollDirection === "down" ? "-5rem" : "0"}
+        backgroundColor={isTop ? "#00000020" : "#00000095"}
+        transition="all 0.5s"
+        zIndex={"99"}
       >
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <IconButton
@@ -73,6 +107,7 @@ export default function NavigationBar() {
             >
               {Links.map((link) => (
                 <Text
+                  fontSize={"large"}
                   px={2}
                   py={1}
                   rounded={"md"}
@@ -82,7 +117,7 @@ export default function NavigationBar() {
                     textDecoration: "none",
                     bg: useColorModeValue("gray.200", "gray.700"),
                   }}
-                  onClick={() => onScroll(link.id)}
+                  onClick={() => onClickScroll(link.id)}
                   key={link.id}
                 >
                   {link.name}
@@ -120,6 +155,7 @@ export default function NavigationBar() {
             <Stack as={"nav"} spacing={4}>
               {Links.map((link) => (
                 <Text
+                  fontSize={"large"}
                   px={2}
                   py={1}
                   rounded={"md"}
@@ -138,9 +174,7 @@ export default function NavigationBar() {
             </Stack>
           </Box>
         ) : null}
-      </Box>
-
-      <Box p={4}>Main Content Here</Box>
+      </Flex>
     </>
   );
 }
