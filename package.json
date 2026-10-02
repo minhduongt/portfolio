@@ -9,13 +9,16 @@
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy:github": "gh-pages -d build",
+    "deploy:firebase": "npm run build && firebase deploy"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "dompurify": "^3.4.16",
+    "firebase": "^12.19.0",
     "framer-motion": "^10.16.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
