@@ -7,19 +7,22 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:firebase": "vite build --mode firebase",
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy:github": "gh-pages -d build",
-    "deploy:firebase": "npm run build && firebase deploy"
+    "deploy:firebase": "npm run build:firebase && firebase deploy --only hosting --project dtminh-dev"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "cron-parser": "^5.10.1",
     "dompurify": "^3.4.16",
     "firebase": "^12.19.0",
     "framer-motion": "^10.16.12",
+    "marked": "^18.0.14",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.12.0",

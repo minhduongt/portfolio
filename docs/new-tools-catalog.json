@@ -1,0 +1,82 @@
+[
+  {
+    "slug": "markdown-editor",
+    "name": "Markdown Editor",
+    "description": "Write Markdown, review a sanitized live preview and download your notes.",
+    "component": "markdown-editor",
+    "category": "Writing",
+    "config": {},
+    "sortOrder": 7,
+    "visibility": "private"
+  },
+  {
+    "slug": "password-uuid-generator",
+    "name": "Password / UUID Generator",
+    "description": "Generate secure random passwords and version 4 UUIDs locally.",
+    "component": "password-uuid-generator",
+    "category": "Generators",
+    "config": {},
+    "sortOrder": 8,
+    "visibility": "private"
+  },
+  {
+    "slug": "lorem-ipsum-generator",
+    "name": "Lorem Ipsum Generator",
+    "description": "Create placeholder paragraphs or an exact number of words.",
+    "component": "lorem-ipsum-generator",
+    "category": "Writing",
+    "config": {},
+    "sortOrder": 9,
+    "visibility": "private"
+  },
+  {
+    "slug": "unix-timestamp-converter",
+    "name": "UNIX Timestamp Converter",
+    "description": "Convert UNIX seconds or milliseconds to dates and back with explicit timezones.",
+    "component": "unix-timestamp-converter",
+    "category": "Date & time",
+    "config": {},
+    "sortOrder": 10,
+    "visibility": "private"
+  },
+  {
+    "slug": "hash-generator",
+    "name": "Hash Generator",
+    "description": "Generate SHA-1, SHA-256, SHA-384 or SHA-512 hashes from UTF-8 text.",
+    "component": "hash-generator",
+    "category": "Developer",
+    "config": {},
+    "sortOrder": 11,
+    "visibility": "private"
+  },
+  {
+    "slug": "jwt-encoder-decoder",
+    "name": "JWT Encode / Decode",
+    "description": "Inspect JWT headers and payloads or create HS256 and unsigned tokens.",
+    "component": "jwt-encoder-decoder",
+    "category": "Developer",
+    "config": {},
+    "sortOrder": 12,
+    "visibility": "private"
+  },
+  {
+    "slug": "cron-parser",
+    "name": "Cron Expression Parser",
+    "description": "Parse a five-field cron expression and preview its next five runs in a timezone.",
+    "component": "cron-parser",
+    "category": "Date & time",
+    "config": {},
+    "sortOrder": 13,
+    "visibility": "private"
+  },
+  {
+    "slug": "html-email-builder",
+    "component": "html-email-builder",
+    "name": "HTML Preview / Email Builder",
+    "description": "Build HTML emails from templates, edit the markup and preview desktop or mobile layouts.",
+    "category": "HTML & email",
+    "visibility": "private",
+    "config": {},
+    "sortOrder": 14
+  }
+]

@@ -1,3 +1,4 @@
+import { mockVisitorTracking } from './mock-visitor-tracking.mjs';
 // Uses the real sibling backend controllers with its in-memory test store.
 // Firebase identity protocol responses are fixtures; no live account or data is changed.
 import assert from 'node:assert/strict';
@@ -38,7 +39,8 @@ const browser = await chromium.launch({ channel: 'msedge', headless: true });
 const base = 'http://127.0.0.1:5173/portfolio/';
 try {
   const context = await browser.newContext();
-  const page = await context.newPage(); page.on('pageerror', error => errors.push(error.message));
+  const page = await context.newPage();
+ await mockVisitorTracking(page); page.on('pageerror', error => errors.push(error.message));
   let identity = 'admin';
   await context.route('https://identitytoolkit.googleapis.com/**', async route => {
     const now = Math.floor(Date.now() / 1000);
@@ -95,7 +97,7 @@ try {
   identity = 'reader'; await page.goto(`${base}#/login`);
   await page.getByLabel('Email', { exact: true }).fill('reader@example.com'); await page.getByLabel('Password', { exact: true }).fill('fixture-password');
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await page.getByText('Signed in. This account does not have administrator access.').waitFor();
+  await page.getByText('You have limited access to blogs and tools.').waitFor();
   await page.goto(`${base}#/admin`); await page.getByText('Verified administrator access is required.').waitFor();
   assert.equal(await page.getByRole('button', { name: 'New blog', exact: true }).count(), 0);
   await page.goto(`${base}#/login`); await page.getByRole('button', { name: 'Sign out', exact: true }).click();

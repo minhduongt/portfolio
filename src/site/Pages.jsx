@@ -1,8 +1,12 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import LoadingState from './LoadingState';
+import VisibilityBadge from './VisibilityBadge';
 import SiteNavigation, { siteLink, SiteFooter } from './SiteNavigation';
 import { posts, tools } from './data';
 
 const AdditionalTools = lazy(() => import('./tools/AdditionalTools'));
+const DeveloperTools = lazy(() => import('./tools/DeveloperTools'));
+const HtmlEmailBuilder = lazy(() => import('./tools/HtmlEmailBuilder'));
 const ManagedContent = lazy(() => import('./ManagedContent'));
 
 function Blogs() {
@@ -79,12 +83,14 @@ function ToolWorkspace({ tool }) {
 
 export function Tools({ items = tools }) {
   const [selected, setSelected] = useState('');
+  const [search, setSearch] = useState('');
+  const filtered = items.filter(item => `${item.name} ${item.category}`.toLowerCase().includes(search.toLowerCase()));
   const key = item => item.slug || item.id;
   const tool = items.find(item => key(item) === selected) || items[0];
   return <>
     <div className="page-heading"><span className="eyebrow">THE WORKBENCH / BROWSER UTILITIES</span><h1>Small tools.<br />Less friction<span>.</span></h1><p>A few useful utilities for the little things between builds.</p></div>
-    {!tool ? <p>No tools are available yet.</p> : <div className="tools-layout"><div className="tool-picker" role="group" aria-label="Choose a tool">{items.map(item => <button key={key(item)} aria-pressed={key(tool) === key(item)} onClick={() => setSelected(key(item))} aria-label={item.name}><span className="picker-icon" aria-hidden="true">{item.icon}</span><span><strong>{item.name}</strong><small>{item.category}</small></span><span aria-hidden="true">↗</span></button>)}<p className="mock-note">Your input stays in your browser.</p></div>
-      {!tool.id ? <p role="status">This tool is unavailable in this version of the portfolio.</p> : ['image', 'powerfx', 'color'].includes(tool.id) ? <Suspense fallback={<p role="status">Loading tool…</p>}><AdditionalTools key={key(tool)} tool={tool} /></Suspense> : <ToolWorkspace key={key(tool)} tool={tool} />}</div>}
+    {!tool ? <p>No tools are available yet.</p> : <div className="tools-layout"><div className="tool-picker" role="group" aria-label="Choose a tool"><label className="utility-field tool-search">Find a tool<input type="search" placeholder="Search tools" value={search} onChange={event => setSearch(event.target.value)} /></label><div className="tool-picker-list">{filtered.map(item => <button key={key(item)} aria-pressed={key(tool) === key(item)} onClick={() => setSelected(key(item))} aria-label={item.name}><span className="picker-icon" aria-hidden="true">{item.icon}</span><span><strong>{item.name}</strong><small>{item.category}</small><VisibilityBadge visibility={item.visibility} /></span><span aria-hidden="true">↗</span></button>)}{!filtered.length && <p className="mock-note">No matching tools.</p>}</div><p className="mock-note">Your input stays in your browser.</p></div>
+      {!tool.id ? <p role="status">This tool is unavailable in this version of the portfolio.</p> : tool.id === 'html-email' ? <Suspense fallback={<LoadingState label="Preparing your builder" compact />}><HtmlEmailBuilder key={key(tool)} tool={tool} /></Suspense> : ['image', 'powerfx', 'color'].includes(tool.id) ? <Suspense fallback={<LoadingState label="Preparing your tool" compact />}><AdditionalTools key={key(tool)} tool={tool} /></Suspense> : ['markdown', 'credentials', 'lorem', 'timestamp', 'hash', 'jwt', 'cron'].includes(tool.id) ? <Suspense fallback={<LoadingState label="Preparing your tool" compact />}><DeveloperTools key={key(tool)} tool={tool} /></Suspense> : <ToolWorkspace key={key(tool)} tool={tool} />}</div>}
   </>;
 }
 
@@ -99,6 +105,6 @@ export default function Pages({ page, postSlug }) {
     if (target) { event.preventDefault(); target.focus({ preventScroll: true }); target.scrollIntoView(); }
   };
   return <div className="portfolio concept-b concept-mix mock-page" onClick={localAnchor}><a className="skip-link" href="#main-content">Skip to content</a><SiteNavigation concept="mix" page={page} />
-    <main id="main-content" className="content-width" tabIndex={-1}><div id="home" />{!location.pathname.includes('design-preview') ? <Suspense fallback={<p role="status">Loading content…</p>}><ManagedContent page={page} postSlug={postSlug} /></Suspense> : page === 'blogs' ? (post ? <BlogDetail post={post} /> : <Blogs />) : <Tools />}</main><SiteFooter />
+    <main id="main-content" className="content-width" tabIndex={-1}><div id="home" />{!location.pathname.includes('design-preview') ? <Suspense fallback={<LoadingState label={page === 'blogs' ? 'Opening the notebook' : 'Preparing the workbench'} skeleton />}><ManagedContent page={page} postSlug={postSlug} /></Suspense> : page === 'blogs' ? (post ? <BlogDetail post={post} /> : <Blogs />) : <Tools />}</main><SiteFooter />
   </div>;
 }

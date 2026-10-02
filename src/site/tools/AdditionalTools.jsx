@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { colorValues, formatPowerFx } from './toolLogic';
 
-function CopyButton({ value }) {
+export function CopyButton({ value }) {
   const [status, setStatus] = useState('');
   useEffect(() => setStatus(''), [value]);
   return <><button className="copy-button" disabled={!value} onClick={async () => {
@@ -119,6 +119,9 @@ function ImageConverter() {
   </>;
 }
 
+export function ToolFrame({ tool, children }) {
+  return <section className="tool-workspace" aria-label={`${tool.name} workspace`}><div className="workspace-heading"><div><span className="eyebrow">{tool.category} / LOCAL UTILITY</span><h2>{tool.name}</h2><p>{tool.description}</p></div><span className="tool-symbol" aria-hidden="true">{tool.icon}</span></div>{children}</section>;
+}
 export default function AdditionalTools({ tool }) {
-  return <section className="tool-workspace" aria-label={`${tool.name} workspace`}><div className="workspace-heading"><div><span className="eyebrow">{tool.category} / LOCAL UTILITY</span><h2>{tool.name}</h2><p>{tool.description}</p></div><span className="tool-symbol" aria-hidden="true">{tool.icon}</span></div>{tool.id === 'image' ? <ImageConverter /> : tool.id === 'powerfx' ? <PowerFx /> : <ColorPicker />}</section>;
+  return <ToolFrame tool={tool}>{tool.id === 'image' ? <ImageConverter /> : tool.id === 'powerfx' ? <PowerFx /> : <ColorPicker />}</ToolFrame>;
 }

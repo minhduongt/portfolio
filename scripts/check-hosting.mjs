@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
+const config = JSON.parse(readFileSync('firebase.json', 'utf8'));
+assert.equal(config.hosting.site, 'dtminh-dev');
+assert.equal(config.hosting.public, 'build');
+const html = readFileSync('build/index.html', 'utf8');
+assert(!html.includes('/portfolio/assets/'), 'Firebase build must use root asset paths');
+for (const path of [...html.matchAll(/(?:src|href)="(\/[^"?#]+)"/gu)].map(match => match[1])) assert(existsSync(`build${path}`), `Missing asset ${path}`);
+assert(!existsSync('build/design-preview.html'));
+assert(!existsSync('build/legacy-preview.html'));
+const js = readdirSync('build/assets').filter(name => name.endsWith('.js')).map(name => readFileSync(`build/assets/${name}`, 'utf8')).join('\n');
+assert(!js.includes('http://localhost:3000/api/v1'), 'Release must not call a localhost backend');
+console.log('PASS: Firebase site, root assets, isolated production entry and no localhost API.');

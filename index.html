@@ -10,9 +10,39 @@
     <meta property="og:description" content="Thoughtful interfaces. Practical software. Power Platform, React and .NET." />
     <meta property="og:type" content="website" />
     <title>Duong Tan Minh — Fullstack Developer</title>
+    <style>
+      .entry-loader { box-sizing: border-box; min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: 32px 24px; background: #101716; color: #edf1ed; font-family: "Segoe UI", Arial, sans-serif; text-align: center; }
+      .entry-loader__content { width: min(100%, 420px); }
+      .entry-loader__sky { width: 176px; height: 176px; margin: 0 auto 40px; position: relative; }
+      .entry-loader__sky::before { content: ""; position: absolute; inset: -24px; border-radius: 50%; background: radial-gradient(circle, #b8ceb912, transparent 68%); }
+      .entry-loader__ring { position: absolute; inset: 0; border: 1px solid #b8ceb92b; border-radius: 50%; animation: entry-orbit 7s linear infinite; }
+      .entry-loader__ring::after { content: ""; position: absolute; left: calc(50% - 3px); top: -3px; width: 6px; height: 6px; background: #d7e6d7; border-radius: 50%; box-shadow: 0 0 16px #b8ceb980; }
+      .entry-loader__ring--inner { inset: 20px; border-style: dashed; border-color: #b8ceb918; animation-direction: reverse; animation-duration: 12s; }
+      .entry-loader__ring--inner::after { width: 3px; height: 3px; top: -2px; background: #91a798; }
+      .entry-loader__moon { position: absolute; inset: 50px; border-radius: 50%; box-shadow: inset 20px -7px 0 #b8ceb9, -9px 5px 30px #b8ceb918; transform: rotate(-25deg); }
+      .entry-loader__eyebrow { margin: 0 0 14px; font-size: 10px; letter-spacing: .3em; color: #b8ceb9; }
+      .entry-loader__title { margin: 0; font-size: clamp(26px, 5vw, 36px); font-weight: 400; letter-spacing: -.05em; line-height: 1.3; }
+      .entry-loader__caption { margin: 14px 0 0; color: #acb9b2; font-size: 13px; line-height: 1.7; }
+      .entry-loader__trail { width: 96px; height: 2px; overflow: hidden; background: #b8ceb91a; margin: 32px auto 0; }
+      .entry-loader__trail::after { content: ""; display: block; width: 32px; height: 100%; background: #b8ceb9; animation: entry-trail 2.4s ease-in-out infinite; }
+      @keyframes entry-orbit { to { transform: rotate(360deg); } }
+      @keyframes entry-trail { 0%, 100% { transform: translateX(-32px); opacity: 0; } 30%, 70% { opacity: 1; } 90% { transform: translateX(96px); opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) { .entry-loader__ring, .entry-loader__trail::after { animation: none; } .entry-loader__trail::after { transform: translateX(32px); } }
+    </style>
   </head>
-  <body>
-    <div id="root"></div>
+  <body style="margin: 0; background: #101716;">
+    <div id="root">
+      <div class="entry-loader" role="status" aria-live="polite" aria-busy="true">
+        <div class="entry-loader__content">
+          <div class="entry-loader__sky" aria-hidden="true"><span class="entry-loader__ring"></span><span class="entry-loader__ring entry-loader__ring--inner"></span><span class="entry-loader__moon"></span></div>
+          <p class="entry-loader__eyebrow" aria-hidden="true">MINH DUONG / IN ORBIT</p>
+          <p class="entry-loader__title">Entering Minh’s orbit</p>
+          <p class="entry-loader__caption">Loading the portfolio. A little space for what comes next.</p>
+          <div class="entry-loader__trail" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+    <noscript><style>.entry-loader { display: none; }</style><div class="entry-loader" style="display: grid;"><p>Please enable JavaScript to explore Minh’s portfolio.</p></div></noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -1,3 +1,4 @@
+import { mockVisitorTracking } from './mock-visitor-tracking.mjs';
 import assert from 'node:assert/strict';
 import { mkdirSync } from 'node:fs';
 import { chromium } from '../.tmp/tooling/node_modules/playwright/index.mjs';
@@ -8,6 +9,7 @@ const browser = await chromium.launch({ channel: 'msedge', headless: true });
 mkdirSync('.tmp/screenshots', { recursive: true });
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 950 } });
+ await mockVisitorTracking(page);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   // Production API fixtures. Build with VITE_API_BASE_URL=http://localhost:3000/api/v1.

@@ -1,14 +1,14 @@
 import { tools } from './data.js';
 
 export const apiBase = import.meta.env?.VITE_API_BASE_URL?.trim().replace(/\/$/u, '') || (import.meta.env?.DEV ? 'http://localhost:3000/api/v1' : '');
-export async function requestApi(path, { user, method = 'GET', body, signal, base = apiBase } = {}) {
+export async function requestApi(path, { user, method = 'GET', body, signal, cache, base = apiBase } = {}) {
   if (!base) throw new Error('Content service is not configured. Set VITE_API_BASE_URL before building.');
   const send = async refresh => {
     const headers = { Accept: 'application/json' };
     if (user) headers.Authorization = `Bearer ${await user.getIdToken(refresh)}`;
     if (body !== undefined) headers['Content-Type'] = 'application/json';
     let response;
-    try { response = await fetch(`${base.replace(/\/$/u, '')}${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal }); }
+    try { response = await fetch(`${base.replace(/\/$/u, '')}${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal, cache }); }
     catch (error) { if (error.name === 'AbortError') throw error; throw new Error('Cannot reach the content service. Check the connection and try again.'); }
     if (response.status === 401 && user && !refresh) return send(true);
     let result;
@@ -22,7 +22,7 @@ export async function requestApi(path, { user, method = 'GET', body, signal, bas
   return send(false);
 }
 
-export const componentKeys = { 'json-formatter': 'json', 'url-encoder-decoder': 'url', 'word-counter': 'words', 'image-converter': 'image', 'powerfx-formatter': 'powerfx', 'color-picker': 'color' };
+export const componentKeys = { 'json-formatter': 'json', 'url-encoder-decoder': 'url', 'word-counter': 'words', 'image-converter': 'image', 'powerfx-formatter': 'powerfx', 'color-picker': 'color', 'markdown-editor': 'markdown', 'password-uuid-generator': 'credentials', 'lorem-ipsum-generator': 'lorem', 'unix-timestamp-converter': 'timestamp', 'hash-generator': 'hash', 'jwt-encoder-decoder': 'jwt', 'cron-parser': 'cron', 'html-email-builder': 'html-email' };
 export function toolDefinition(record) {
   const id = Object.hasOwn(componentKeys, record.component) ? componentKeys[record.component] : null;
   const local = tools.find(tool => tool.id === id);
@@ -30,6 +30,7 @@ export function toolDefinition(record) {
   return { ...record, id, icon: local?.icon || '?', category: record.category || 'Utility' };
 }
 export function contentPayload(kind, form, editing = false) {
+  if (!['public', 'limited', 'private'].includes(form.visibility)) throw new Error('Choose public, limited or private visibility.');
   const data = { visibility: form.visibility };
   if (!editing) {
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(form.slug)) throw new Error('Use lowercase words separated by single hyphens for the slug.');

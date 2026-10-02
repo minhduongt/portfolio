@@ -22,4 +22,12 @@ export const tools = [
   { id: 'image', name: 'Image Converter', category: 'Images', icon: '▧', description: 'Convert and resize PNG, JPEG and WebP images locally.' },
   { id: 'powerfx', name: 'Power Fx Formatter', category: 'Power Apps', icon: 'fx', description: 'Give Power Apps formulas a readable layout while preserving their tokens.' },
   { id: 'color', name: 'Color Picker', category: 'Design', icon: '◒', description: 'Choose a color and copy its HEX, RGB or HSL value.' },
+  { id: 'markdown', name: 'Markdown Editor', category: 'Writing', icon: 'M↓', description: 'Write Markdown, review a sanitized live preview and download your notes.' },
+  { id: 'credentials', name: 'Password / UUID Generator', category: 'Generators', icon: '✳', description: 'Generate secure random passwords and version 4 UUIDs locally.' },
+  { id: 'lorem', name: 'Lorem Ipsum Generator', category: 'Writing', icon: 'Aa', description: 'Create placeholder paragraphs or an exact number of words.' },
+  { id: 'timestamp', name: 'UNIX Timestamp Converter', category: 'Date & time', icon: '↔', description: 'Convert UNIX seconds or milliseconds to dates and back with explicit timezones.' },
+  { id: 'hash', name: 'Hash Generator', category: 'Developer', icon: '#', description: 'Generate SHA-1, SHA-256, SHA-384 or SHA-512 hashes from UTF-8 text.' },
+  { id: 'jwt', name: 'JWT Encode / Decode', category: 'Developer', icon: 'JWT', description: 'Inspect JWT headers and payloads or create HS256 and unsigned tokens.' },
+  { id: 'cron', name: 'Cron Expression Parser', category: 'Date & time', icon: '◷', description: 'Parse a five-field cron expression and preview its next five runs in a timezone.' },
+  { id: 'html-email', name: 'HTML Preview / Email Builder', category: 'HTML & email', icon: '</>', description: 'Build HTML emails from templates, edit the markup and preview desktop or mobile layouts.' },
 ];

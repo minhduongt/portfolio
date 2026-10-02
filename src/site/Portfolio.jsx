@@ -1,4 +1,6 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import useSectionMotion from './useSectionMotion';
+import ContactForm from './ContactForm';
 import { achievements, capabilities, experience, profile, projects } from './content';
 import SiteNavigation, { SiteFooter } from './SiteNavigation';
 import QuoteRotator from './QuoteRotator';
@@ -29,6 +31,8 @@ function ProjectDetail({ project }) {
 }
 
 export default function Portfolio({ concept = "mix" }) {
+  const rootRef = useRef(null);
+  useSectionMotion(rootRef);
   const [activeSection, setActiveSection] = useState('home');
   useEffect(() => {
     const visibleSections = new Map();
@@ -46,7 +50,7 @@ export default function Portfolio({ concept = "mix" }) {
   useEffect(() => {
     document.title = `${profile.name} — Fullstack Developer`;
   }, [concept]);
-  return <div className={`portfolio ${concept === 'mix' ? 'concept-b concept-mix' : `concept-${concept}`}`}>
+  return <div ref={rootRef} className={`portfolio ${concept === 'mix' ? 'concept-b concept-mix' : `concept-${concept}`}`}>
     <a className="skip-link" href="#main-content">Skip to content</a>
     {concept === 'c' && <Suspense fallback={<div className="scene-fallback immersive-scene" aria-hidden="true" />}><ThreeScene concept={concept} section={activeSection} /></Suspense>}
     <SiteNavigation concept={concept} activeSection={activeSection} />
@@ -93,9 +97,11 @@ export default function Portfolio({ concept = "mix" }) {
         <div className="capability-grid">{capabilities.map((capability, index) => <article key={capability.title}><span className="capability-index">0{index + 1}</span><h3>{capability.title}</h3><p>{capability.description}</p><p className="capability-items">{capability.items}</p></article>)}</div>
       </section>}
       <section className="contact-section content-width" id="contact" data-section>
+        <div className="contact-layout"><div className="contact-copy">
         <span className="eyebrow">05 / Contact</span><h2>Let’s build<br />something useful<span>.</span></h2><p>Have a project, an opportunity or an idea? Let’s talk.</p>
         <a className="button-primary" href={`mailto:${profile.email}`}>Get in touch <span aria-hidden="true">↗</span></a>
         <div className="contact-links"><span>{profile.email}</span><a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn ↗</a><a href={profile.github} target="_blank" rel="noreferrer">GitHub ↗</a><a href={`tel:${profile.phone}`}>+84 764 420 250</a></div>
+        </div><ContactForm /></div>
       </section>
     </main>
     <SiteFooter />

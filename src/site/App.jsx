@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import LoadingState from './LoadingState';
 import Portfolio from './Portfolio';
 
 const Pages = lazy(() => import('./Pages'));
@@ -24,5 +25,5 @@ export default function App() {
       document.getElementById(location.hash.slice(1))?.scrollIntoView();
     }
   }, [current.page, current.postSlug]);
-  return current.page === 'portfolio' ? <Portfolio /> : <Suspense fallback={<div className="route-loading" role="status">Loading…</div>}>{current.page === 'login' ? <LoginPage /> : current.page === 'admin' ? <AdminPage /> : <Pages page={current.page} postSlug={current.postSlug} />}</Suspense>;
+  return current.page === 'portfolio' ? <Portfolio /> : <Suspense fallback={<LoadingState label="Preparing your next view" fullPage />}>{current.page === 'login' ? <LoginPage /> : current.page === 'admin' ? <AdminPage /> : <Pages page={current.page} postSlug={current.postSlug} />}</Suspense>;
 }
