@@ -211,6 +211,9 @@ details[open] summary span { transform: rotate(45deg); }
 .mixed-hero-visual .hero-visual { height: 385px; background: radial-gradient(ellipse, #879f9322, transparent 68%); }
 .quote-rotator { padding: 26px 20px 0; border-top: 1px solid var(--border); }
 .quote-rotator blockquote { margin: 16px 0 18px; min-height: 112px; }
+.quote-caret { display: inline-block; height: 1em; width: 1px; background: var(--accent); margin-left: 3px; vertical-align: -.1em; animation: quote-caret .7s step-end infinite; }
+@keyframes quote-caret { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .quote-caret { animation: none; } }
 .quote-text { font-size: 17px; line-height: 1.6; margin: 0 0 14px; letter-spacing: -.2px; }
 .quote-rotator cite { font-style: normal; color: var(--muted); font-size: 11px; }
 .quote-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }

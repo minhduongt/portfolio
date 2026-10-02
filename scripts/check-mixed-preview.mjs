@@ -12,17 +12,17 @@ try {
   await page.getByRole('button', { name: 'Mixed preview', exact: true }).waitFor();
   await page.clock.install();
   await page.goto(url('portfolio'));
-  const quote = page.locator('.quote-text');
-  const first = await quote.textContent();
+  const quote = page.locator('.quote-rotator blockquote');
+  const first = await quote.getAttribute('aria-label');
   await page.getByRole('button', { name: 'Next quote', exact: true }).click();
-  assert.notEqual(await quote.textContent(), first, 'Manual change avoids the current quote');
-  const manual = await quote.textContent();
-  await page.clock.fastForward(8100);
-  assert.notEqual(await quote.textContent(), manual, 'Automatic rotation after 8 seconds');
+  assert.notEqual(await quote.getAttribute('aria-label'), first, 'Manual change avoids the current quote');
+  const manual = await quote.getAttribute('aria-label');
+  await page.clock.fastForward(15100);
+  assert.notEqual(await quote.getAttribute('aria-label'), manual, 'Automatic rotation after 15 seconds');
   await page.getByRole('button', { name: 'Pause quotes', exact: true }).click();
-  const paused = await quote.textContent();
-  await page.clock.fastForward(16000);
-  assert.equal(await quote.textContent(), paused);
+  const paused = await quote.getAttribute('aria-label');
+  await page.clock.fastForward(31000);
+  assert.equal(await quote.getAttribute('aria-label'), paused);
   await page.clock.resume();
   const story = page.locator('.layer-story');
   await story.scrollIntoViewIfNeeded();
@@ -83,9 +83,9 @@ try {
   await page.goto(url('portfolio'));
   assert.equal(await page.getByRole('button', { name: 'Play quotes', exact: true }).count(), 1);
   assert.equal(await page.locator('.layer-step').count(), 3);
-  const stillQuote = await page.locator('.quote-text').textContent();
+  const stillQuote = await page.locator('.quote-rotator blockquote').getAttribute('aria-label');
   await page.getByRole('button', { name: 'Next quote', exact: true }).click();
-  assert.notEqual(await page.locator('.quote-text').textContent(), stillQuote);
+  assert.notEqual(await page.locator('.quote-rotator blockquote').getAttribute('aria-label'), stillQuote);
   assert.deepEqual(errors, []);
   console.log('PASS: mixed preview, random/timed/paused quotes, rendered scroll layers, blog search/article, tools and responsive pages.');
 } finally { await browser.close(); }
