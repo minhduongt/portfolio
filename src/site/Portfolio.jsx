@@ -1,10 +1,13 @@
 import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import useSectionMotion from './useSectionMotion';
+import useGalaxyCamera from './useGalaxyCamera';
 import ContactForm from './ContactForm';
 import { achievements, capabilities, experience, profile, projects } from './content';
 import SiteNavigation, { SiteFooter } from './SiteNavigation';
 import QuoteRotator from './QuoteRotator';
 import LayerStory from './LayerStory';
+import ProductPreview from './ProductPreview';
+import { useTheme } from './ThemeProvider';
 const ThreeScene = lazy(() => import('./ThreeScene'));
 
 function SectionHeading({ number, eyebrow, title }) {
@@ -31,9 +34,12 @@ function ProjectDetail({ project }) {
 }
 
 export default function Portfolio({ concept = "mix" }) {
+  const { theme } = useTheme();
   const rootRef = useRef(null);
   useSectionMotion(rootRef);
+  useGalaxyCamera(rootRef, theme);
   const [activeSection, setActiveSection] = useState('home');
+  const [previewProject, setPreviewProject] = useState(null);
   useEffect(() => {
     const visibleSections = new Map();
     const observer = new IntersectionObserver(entries => {
@@ -50,7 +56,7 @@ export default function Portfolio({ concept = "mix" }) {
   useEffect(() => {
     document.title = `${profile.name} — Fullstack Developer`;
   }, [concept]);
-  return <div ref={rootRef} className={`portfolio ${concept === 'mix' ? 'concept-b concept-mix' : `concept-${concept}`}`}>
+  return <div ref={rootRef} className={`portfolio galaxy-portfolio ${concept === 'mix' ? 'concept-b concept-mix' : `concept-${concept}`}`}>
     <a className="skip-link" href="#main-content">Skip to content</a>
     {concept === 'c' && <Suspense fallback={<div className="scene-fallback immersive-scene" aria-hidden="true" />}><ThreeScene concept={concept} section={activeSection} /></Suspense>}
     <SiteNavigation concept={concept} activeSection={activeSection} />
@@ -66,7 +72,7 @@ export default function Portfolio({ concept = "mix" }) {
         </div>
         {concept !== 'c' && <div className={concept === 'mix' ? 'mixed-hero-visual' : 'hero-visual'}><div className={concept === 'mix' ? 'hero-visual' : 'scene-container'}>
           <Suspense fallback={<div className="scene-fallback" aria-hidden="true" />}><ThreeScene concept={concept === 'mix' ? 'a' : concept} section={activeSection} /></Suspense>
-          <div className="scene-caption"><span>{concept === 'a' || concept === 'mix' ? 'A LITTLE SPACE TO THINK.' : 'INTERFACE → LOGIC → DATA'}</span><span>THREE.JS / {concept === 'a' || concept === 'mix' ? '01' : '02'}</span></div>
+          <div className="scene-caption"><span>{concept === 'a' || concept === 'mix' ? 'A LITTLE SPACE TO THINK.' : 'INTERFACE → LOGIC → DATA'}</span><span>{concept === 'a' || concept === 'mix' ? `${theme === 'light' ? 'SOLAR' : 'LUNAR'} / 01` : 'LAYERS / 02'}</span></div>
         </div>{concept === 'mix' && <QuoteRotator />}</div>}
         <div className="hero-bottom"><span>Frontend craft. Fullstack perspective.</span><a href="#about">Explore the portfolio <span aria-hidden="true">↓</span></a></div>
       </section>
@@ -82,14 +88,27 @@ export default function Portfolio({ concept = "mix" }) {
           <div className="project-copy"><span className="eyebrow">{project.category}</span><h3>{project.name}</h3><p className="project-summary">{project.summary}</p>
             {project.role && <p className="project-role">{project.role}</p>}
             <ul className="tech-list" aria-label="Technologies">{project.technologies.map(tech => <li key={tech}>{tech}</li>)}</ul>
+            {project.url && <div className="project-actions"><button className="button-primary" onClick={() => setPreviewProject(project)}>Preview here <span aria-hidden="true">↗</span></button><a className="button-secondary" href={project.url} target="_blank" rel="noopener noreferrer">Open in new tab <span aria-hidden="true">↗</span></a></div>}
             {concept === 'b' || concept === 'mix' ? <ProjectDetail project={project} /> : <details><summary>Explore the project <span aria-hidden="true">+</span></summary><ProjectDetail project={project} /></details>}
           </div>
         </article>)}</div>
-        <div className="work-note"><p>Functional diagrams shown above. Recent project descriptions are based on reviewed source; individual public links are not shown here.</p><a href={`${profile.github}?tab=repositories`} target="_blank" rel="noreferrer">Explore my GitHub <span aria-hidden="true">↗</span></a></div>
+        <div className="work-note"><p>Explore the live products here or open them in a new tab. Functional diagrams shown above; project descriptions are based on reviewed source.</p><a href={`${profile.github}?tab=repositories`} target="_blank" rel="noreferrer">Explore my GitHub <span aria-hidden="true">↗</span></a></div>
       </section>
       <section className="experience-section content-width" id="experience" data-section>
         <SectionHeading number={concept === 'mix' ? '04' : '03'} eyebrow="Experience" title="The work behind the craft." />
-        <div className="experience-list">{experience.map(job => <article className="experience-item" key={job.company}><p className="experience-date">{job.dates}</p><div><h3>{job.company}</h3><p className="experience-role">{job.role}</p><p>{job.description}</p><ul>{job.details.map(detail => <li key={detail}>{detail}</li>)}</ul><p className="experience-tech">{job.technologies}</p></div></article>)}</div>
+        <ol className="experience-list" aria-label="Career timeline">{experience.map(job => {
+          const current = job.dates.endsWith('Present');
+          return <li className={`experience-item${current ? ' experience-item--current' : ''}`} key={job.company}>
+            <p className="experience-date">{job.dates}</p>
+            <span className="timeline-marker" aria-hidden="true"><span /></span>
+            <article className="experience-card">
+              <div className="experience-card-heading"><h3>{job.company}</h3>{current && <span className="experience-current">Current role</span>}</div>
+              <p className="experience-role">{job.role}</p><p>{job.description}</p>
+              <ul>{job.details.map(detail => <li key={detail}>{detail}</li>)}</ul>
+              <p className="experience-tech">{job.technologies}</p>
+            </article>
+          </li>;
+        })}</ol>
         <div className="recognition"><span className="eyebrow">Selected recognition</span>{achievements.map(award => <p key={award}>{award}</p>)}</div>
       </section>
       {concept !== 'mix' && <section className="capabilities-section content-width" id="capabilities" data-section>
@@ -105,5 +124,6 @@ export default function Portfolio({ concept = "mix" }) {
       </section>
     </main>
     <SiteFooter />
+    <ProductPreview project={previewProject} onClose={() => setPreviewProject(null)} />
   </div>;
 }

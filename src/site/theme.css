@@ -1,0 +1,82 @@
+/* Solar / lunar palette shared by pages, utilities and navigation. */
+:root { --bg: #101716; --surface: #17211e; --text: #edf1ed; --muted: #acb9b2; --accent: #b8ceb9; --border: #2d3933; }
+body { background: var(--bg); color: var(--text); }
+.galaxy-portfolio { position: relative; isolation: isolate; }
+/* CSS keeps the sky independent of WebGL and only loads it in lunar mode. */
+:root:not([data-theme="light"]) .galaxy-portfolio::before {
+  content: ''; position: fixed; inset: -8%; z-index: -1; pointer-events: none;
+  background-color: var(--bg);
+  background-image: linear-gradient(90deg, #101716e6 0%, #101716b3 35%, #10171666 72%, #10171699 100%), url('../images/stars_milkyway.jpg');
+  background-size: cover; background-position: center, 65% center; background-repeat: no-repeat;
+  background-blend-mode: normal, screen;
+  transform: var(--galaxy-camera, translate3d(-16vw, 0, 0) scale(1.5));
+  transform-origin: 50% 50%; transition: transform .3s ease-out;
+}
+@media (max-width: 700px) {
+  :root:not([data-theme="light"]) .galaxy-portfolio::before {
+    background-image: linear-gradient(to bottom, #101716cc 0%, #10171666 35%, #10171626 60%, #10171699 100%), url('../images/stars_milkyway.jpg');
+    background-position: center, 65% center;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-theme="light"]) .galaxy-portfolio::before { transform: scale(1.5); transition: none; }
+}
+:root[data-theme="light"], :root[data-theme="light"] .portfolio {
+  color-scheme: light;
+  --bg: #faf7ef; --surface: #f0e9db; --text: #29261f; --muted: #6a6256; --accent: #986119; --border: #d9cebc;
+}
+.nav-actions { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.theme-toggle { display: inline-flex; align-items: center; gap: 9px; border: 0; background: none; padding: 4px 0; color: var(--muted); min-height: 44px; font-size: 11px; }
+.theme-toggle-track { display: flex; align-items: center; justify-content: space-around; width: 66px; height: 34px; border: 1px solid var(--border); border-radius: 24px; position: relative; background: var(--surface); }
+.theme-toggle-track svg { position: relative; width: 17px; height: 17px; transition: color .25s, transform .35s; }
+.theme-toggle-thumb { position: absolute; width: 26px; height: 26px; left: 3px; border-radius: 50%; background: var(--accent); transform: translateX(32px); transition: transform .35s cubic-bezier(.2,.7,.2,1), background .25s; }
+.theme-toggle-moon { color: #14231b; }
+.theme-toggle:hover .theme-toggle-track { border-color: var(--accent); }
+.theme-toggle:hover svg { transform: rotate(-12deg); }
+[data-theme="light"] .theme-toggle-thumb { transform: translateX(0); background: #f0b750; box-shadow: 0 1px 6px #ae78282a; }
+[data-theme="light"] .theme-toggle-sun { color: #4d330d; }
+[data-theme="light"] .theme-toggle-moon { color: var(--muted); }
+.hero-sun { display: none; position: absolute; width: min(64%, 280px); aspect-ratio: 1; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: solar-arrival .65s ease both; }
+.solar-scene::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, #f7ba4630 10%, #edb14c12 35%, transparent 65%); pointer-events: none; }
+.solar-scene.scene-unavailable .hero-sun { display: block; }
+.solar-scene.scene-unavailable .static-orbit { display: none; }
+@keyframes solar-arrival { from { opacity: 0; scale: .94; } to { opacity: 1; scale: 1; } }
+.hero-sun::before { content: ''; position: absolute; inset: -45%; border-radius: 50%; background: radial-gradient(circle, #f7ba4640 20%, #edb14c16 45%, transparent 68%); }
+.hero-sun-disc { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; box-shadow: 0 0 32px #efac4560, 0 0 70px #efac4520; }
+.hero-sun-disc img { width: 144%; height: 144%; max-width: none; position: absolute; top: -22%; left: -22%; object-fit: cover; }
+.hero-sun-orbit { position: absolute; inset: -20%; border: 1px solid #aa793633; border-radius: 50%; transform: rotate(-24deg) scaleY(.65); }
+.hero-sun-orbit::after { content: ''; position: absolute; top: 12%; left: 13%; width: 6px; height: 6px; border-radius: 50%; background: #c18b33; box-shadow: 0 0 12px #efac4570; }
+.hero-sun-orbit--outer { inset: -32%; transform: rotate(32deg) scaleY(.6); opacity: .55; }
+[data-theme="light"] :focus-visible { outline-color: #986119; }
+[data-theme="light"] .site-nav, [data-theme="light"] .site-nav.is-scrolled { background: #faf7efed; }
+[data-theme="light"] .site-nav.is-scrolled { border-color: var(--border); box-shadow: 0 10px 30px #7655290b; }
+[data-theme="light"] .button-primary, [data-theme="light"] .filter-buttons button[aria-pressed="true"], [data-theme="light"] .empty-state button { background: #efbd63; color: #37280d; }
+[data-theme="light"] .button-primary:hover { background: #f4cb85; }
+[data-theme="light"] .hero-visual, [data-theme="light"] .mixed-hero-visual .hero-visual { background: radial-gradient(ellipse, #edbf6b18, transparent 70%); }
+[data-theme="light"] .project-visual, [data-theme="light"] .blog-art { background: #eee4d2; }
+[data-theme="light"] .visual-atlas { background: #e5eade; }
+[data-theme="light"] .visual-research, [data-theme="light"] .art-interfaces { background: #e4e9eb; }
+[data-theme="light"] .visual-label, [data-theme="light"] .visual-caption, [data-theme="light"] .diagram-layer { color: var(--text); }
+[data-theme="light"] .diagram-layer { background: #ffffff70; border-color: #b7ac9860; }
+[data-theme="light"] .diagram-connector { color: var(--muted); }
+[data-theme="light"] .tool-editor-grid textarea, [data-theme="light"] .utility-field input, [data-theme="light"] .utility-field select, [data-theme="light"] .utility-field textarea, [data-theme="light"] .managed-html pre, [data-theme="light"] .markdown-preview, [data-theme="light"] .email-preview-stage { background: #fffdf8; }
+[data-theme="light"] input::placeholder, [data-theme="light"] textarea::placeholder { color: #776d5c; }
+[data-theme="light"] .tool-error, [data-theme="light"] .auth-message--error, [data-theme="light"] .visibility-badge--private { color: #a24026; }
+[data-theme="light"] .auth-card { background: #fffdf8; box-shadow: 0 24px 80px #7655290c; }
+[data-theme="light"] .auth-atmosphere { background: radial-gradient(ellipse at 45% 35%, #edbf6b30, transparent 65%), #f0e9db; }
+[data-theme="light"] .auth-orbit-moon { background: radial-gradient(circle at 35% 35%, #ffdd8d, #eea535); box-shadow: 0 0 38px #edb45440; }
+[data-theme="light"] .auth-orbit-ring { border-color: #98611930; }
+[data-theme="light"] .auth-message { border-color: #98611940; background: #98611906; }
+[data-theme="light"] .auth-message--error { border-color: #a2402640; background: #a2402608; }
+[data-theme="light"] .nav-group-label, [data-theme="light"] .optional-label { color: var(--muted); }
+[data-theme="light"] .tool-picker-list { scrollbar-color: #c5b494 var(--bg); }
+[data-theme="light"] .loading-state--page { background: var(--bg); }
+[data-theme="light"] .loading-moon__crescent { background: #efbd63; box-shadow: 0 0 18px #efbd6350; }
+[data-theme="light"] .loading-moon__orbit { border-color: #98611930; }
+[data-theme="light"] .loading-skeleton__row span { background-image: linear-gradient(100deg, #98611908 20%, #98611920 45%, #98611908 70%); }
+[data-theme="light"] .loading-moon__orbit::after { background: var(--accent); }
+[data-theme="light"] .converted-image { background: repeating-conic-gradient(#e9e2d6 0% 25%, #fffdf8 0% 50%) 50% / 20px 20px; }
+[data-theme="light"] .concept-c .hero-copy, [data-theme="light"] .concept-c section:not(.hero) { background: #faf7efed; }
+@media (max-width: 1150px) { .theme-toggle-label { display: none; } .nav-actions { gap: 10px; } .site-nav { gap: 18px; } .wordmark-name { display: none; } }
+@media (max-width: 420px) { .site-nav { gap: 8px; padding-inline: 16px; } .nav-actions { gap: 8px; } .resume-link { padding: 9px; font-size: 11px; } .resume-link span { margin-left: 6px; } .menu-button { padding-inline: 8px; } .menu-orbit { margin-right: 4px; } }
+@media (prefers-reduced-motion: reduce) { .theme-toggle-track svg, .theme-toggle-thumb { transition: none; } }

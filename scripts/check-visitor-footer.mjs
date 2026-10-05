@@ -5,7 +5,7 @@ try {
  const context=await browser.newContext();const beats=[];let statsCalls=0,mode='ready';
  await context.route('**/api/v1/visitors/**',async route=>{
  const request=route.request();assert.equal(request.headers().authorization,undefined);
- if(request.url().includes('/heartbeat')){const body=request.postDataJSON();assert.deepEqual(Object.keys(body),['visitorId']);beats.push(body.visitorId);return route.fulfill({json:{success:true,data:{countedVisit:beats.length===1}}})}
+ if(request.url().includes('/heartbeat')){const body=request.postDataJSON();assert.deepEqual(Object.keys(body),['visitorId','referrer','landingPage']);assert.equal(body.referrer,'');assert(body.landingPage.startsWith('/'));assert(!body.landingPage.includes('?'));assert(!body.landingPage.includes('#'));beats.push(body.visitorId);return route.fulfill({json:{success:true,data:{countedVisit:beats.length===1}}})}
  statsCalls++;return route.fulfill({status:mode==='error'?500:200,json:mode==='error'?{success:false,message:'Fixture failure'}:{success:true,data:mode==='invalid'?{activeVisitors:-1,totalVisits:'wrong'}:{activeVisitors:3,totalVisits:1234}}});
  });
  const page=await context.newPage();await page.clock.install();const errors=[];page.on('pageerror',e=>errors.push(e.message));

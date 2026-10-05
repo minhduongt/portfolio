@@ -81,7 +81,7 @@ Change the date range to **Apr 2025–Apr 2026**. Retain the existing CV respons
 
 ## Thay đổi portfolio
 
-Hai dự án mới thay **FINE Delivery** và đứng đầu Selected Work. PhuongNamCompany và Kyansunitour được giữ lại. Hero, About và nhóm năng lực phản ánh công việc hiện tại với Power Platform/React/.NET. Hình dự án vẫn là sơ đồ chức năng, không phải screenshot của ứng dụng. Chưa thêm URL riêng từng dự án vì chưa xác nhận địa chỉ công khai.
+Hai dự án mới thay **FINE Delivery** và đứng đầu Selected Work. PhuongNamCompany được giữ lại; Kyansunitour đã được bỏ theo yêu cầu mới. Hero, About và nhóm năng lực phản ánh công việc hiện tại với Power Platform/React/.NET. Hình dự án vẫn là sơ đồ chức năng, không phải screenshot của ứng dụng. Ba dự án đã có URL do người dùng cung cấp: https://acupunture-map.vercel.app/, https://re-search-platform.web.app/ và https://phuongnam.net.vn/. Mỗi dự án có nút mở tab mới và xem trực tiếp trong dialog iframe; Phuong Nam dùng HTTPS để tránh mixed content.
 
 PDF tải xuống vẫn là file người dùng cung cấp; cập nhật nội dung preview không tự cập nhật PDF. Có thể sử dụng các đoạn tiếng Anh ở trên khi xuất lại CV.
 

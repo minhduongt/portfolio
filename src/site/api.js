@@ -12,7 +12,15 @@ export async function requestApi(path, { user, method = 'GET', body, signal, cac
     catch (error) { if (error.name === 'AbortError') throw error; throw new Error('Cannot reach the content service. Check the connection and try again.'); }
     if (response.status === 401 && user && !refresh) return send(true);
     let result;
-    try { result = await response.json(); } catch { throw new Error('The content service did not return valid JSON. Check the API address.'); }
+    try { result = await response.json(); } catch {
+      const message = response.status === 404
+        ? `API endpoint ${path.split('?')[0]} was not found (404). Check that the latest backend is deployed to the configured API address.`
+        : response.ok ? 'The content service did not return valid JSON. Check the API address.'
+          : `The content service returned an error (${response.status}). Please try again later.`;
+      const error = new Error(message);
+      error.status = response.status;
+      throw error;
+    }
     if (!response.ok || result.success !== true) {
       const error = new Error(result.message || `Request failed (${response.status}).`);
       error.status = response.status; error.code = result.code; throw error;

@@ -14,6 +14,10 @@ try {
   await assert.rejects(() => requestApi('/tools', { base: 'https://api.example/api/v1' }), error => error.status === 403 && /administrator/.test(error.message));
   globalThis.fetch = async () => new Response('<html>Not an API</html>', { status: 200 });
   await assert.rejects(() => requestApi('/blogs', { base: 'https://api.example/api/v1' }), /valid JSON/);
+  globalThis.fetch = async () => new Response('<html>Cannot GET /api/v1/visitors/analytics</html>', { status: 404 });
+  await assert.rejects(() => requestApi('/visitors/analytics?startDate=2026-10-01', { base: 'https://api.example/api/v1' }), error => error.status === 404 && /\/visitors\/analytics/.test(error.message) && /backend/.test(error.message) && !/html|startDate/.test(error.message));
+  globalThis.fetch = async () => new Response('<html>Server failure</html>', { status: 500 });
+  await assert.rejects(() => requestApi('/blogs', { base: 'https://api.example/api/v1' }), error => error.status === 500 && /500/.test(error.message) && !/valid JSON|html/.test(error.message));
 } finally { globalThis.fetch = originalFetch; }
 assert.equal(toolDefinition({ slug: 'json', component: 'json-formatter', name: 'JSON' }).id, 'json');
 assert.equal(toolDefinition({ slug: 'unknown', component: 'https://evil.example/code.js' }).id, null);

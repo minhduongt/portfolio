@@ -22,6 +22,12 @@ export default function VisitorProvider({ children }) {
     if (!apiBase) { setState({ status: 'unavailable' }); return; }
     let id;
     try { id = visitorId(); } catch { /* Read aggregate counts even without local UUID support. */ }
+    let referrer = '';
+    try {
+      const source = new URL(document.referrer);
+      if (['http:', 'https:'].includes(source.protocol) && source.origin.length <= 2048) referrer = source.origin;
+    } catch { /* Direct visits have no referring site. */ }
+    const landingPage = location.pathname.length <= 2048 ? location.pathname : '';
     let timer, pending, disposed = false;
     const refresh = async () => {
       if (disposed || pending || document.visibilityState !== 'visible') return;
@@ -29,7 +35,7 @@ export default function VisitorProvider({ children }) {
       const timeout = setTimeout(() => controller.abort(), 12000);
       try {
         if (id) {
-          try { await requestApi('/visitors/heartbeat', { method: 'POST', body: { visitorId: id }, signal: controller.signal, cache: 'no-store' }); }
+          try { await requestApi('/visitors/heartbeat', { method: 'POST', body: { visitorId: id, referrer, landingPage }, signal: controller.signal, cache: 'no-store' }); }
           catch (error) { if (controller.signal.aborted) throw error; }
         }
         const stats = await requestApi('/visitors/stats', { signal: controller.signal, cache: 'no-store' });

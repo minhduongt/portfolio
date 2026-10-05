@@ -1,0 +1,53 @@
+import assert from 'node:assert/strict';
+import { chromium } from '../.tmp/tooling/node_modules/playwright/index.mjs';
+import { mockVisitorTracking } from './mock-visitor-tracking.mjs';
+
+const browser = await chromium.launch({ channel: 'msedge', headless: true });
+try {
+  const page = await browser.newPage({ colorScheme: 'dark', viewport: { width: 1440, height: 950 } });
+  await mockVisitorTracking(page);
+  await page.goto('http://127.0.0.1:4177/');
+  await page.getByRole('heading', { name: 'Duong Tan Minh', exact: true }).waitFor();
+  const sky = () => page.locator('.galaxy-portfolio').evaluate(element => {
+    const style = getComputedStyle(element, '::before');
+    const matrix = new DOMMatrixReadOnly(style.transform);
+    const width = parseFloat(style.width);
+    const left = parseFloat(style.left) + width / 2 * (1 - matrix.a) + matrix.e;
+    return { position: style.position, transform: style.transform, image: style.backgroundImage, mask: style.maskImage, height: parseFloat(style.height), scale: matrix.a, x: matrix.e, y: matrix.f, coversWidth: left <= 0 && left + width * matrix.a >= innerWidth };
+  });
+  const initial = await sky();
+  assert.equal(initial.position, 'fixed');
+  assert(initial.scale >= 1.4, 'Galaxy should be zoomed in from the first view');
+  assert(initial.coversWidth, 'Initial camera must cover the full screen');
+  assert(initial.height >= 950);
+  assert.equal(initial.mask, 'none', 'Galaxy should not fade out after the hero');
+  await page.locator('#experience').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(800);
+  const later = await sky();
+  assert.match(later.image, /stars_milkyway/);
+  assert(later.x > initial.x, 'Scrolling should move the background from left to right');
+  assert.equal(later.scale, initial.scale, 'Zoom should stay constant while panning');
+  assert.equal(later.y, 0, 'Camera movement should be horizontal');
+  assert(later.coversWidth);
+  await page.screenshot({ path: '.tmp/screenshots/galaxy-camera-experience.png' });
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await page.waitForTimeout(800);
+  assert.equal((await sky()).transform, initial.transform, 'Returning to the top should restore the camera');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.waitForTimeout(250);
+  const still = (await sky()).transform;
+  await page.locator('#contact').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(400);
+  assert.equal((await sky()).transform, still, 'Reduced motion should disable camera movement');
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+  await page.waitForTimeout(700);
+  const mobileEnd = await sky();
+  assert(mobileEnd.coversWidth, 'Pan must not expose screen edges on mobile');
+  assert.equal(mobileEnd.y, 0);
+  await page.getByRole('button', { name: 'Switch to light theme', exact: true }).click();
+  assert.equal((await sky()).image, 'none');
+  console.log('PASS: initial galaxy zoom, horizontal left-to-right pan, constant scale, full-screen coverage, return-to-top, reduced motion, mobile and theme switch.');
+} finally { await browser.close(); }

@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Duong Tan Minh — Fullstack Developer working with Power Platform, React and .NET. Explore projects, experience, notes and browser tools." />
     <meta name="theme-color" content="#101713" />
+    <script>
+      (() => {
+        let theme;
+        try { theme = localStorage.getItem('portfolio.theme'); } catch {}
+        if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#faf7ef' : '#101716';
+      })();
+    </script>
     <meta property="og:title" content="Duong Tan Minh — Fullstack Developer" />
     <meta property="og:description" content="Thoughtful interfaces. Practical software. Power Platform, React and .NET." />
     <meta property="og:type" content="website" />
@@ -25,6 +35,13 @@
       .entry-loader__caption { margin: 14px 0 0; color: #acb9b2; font-size: 13px; line-height: 1.7; }
       .entry-loader__trail { width: 96px; height: 2px; overflow: hidden; background: #b8ceb91a; margin: 32px auto 0; }
       .entry-loader__trail::after { content: ""; display: block; width: 32px; height: 100%; background: #b8ceb9; animation: entry-trail 2.4s ease-in-out infinite; }
+      html[data-theme="light"] body, html[data-theme="light"] .entry-loader { background: #faf7ef !important; color: #29261f; }
+      html[data-theme="light"] .entry-loader__eyebrow { color: #986119; }
+      html[data-theme="light"] .entry-loader__caption { color: #6a6256; }
+      html[data-theme="light"] .entry-loader__moon { background: #efbd63; box-shadow: 0 0 32px #efbd6350; }
+      html[data-theme="light"] .entry-loader__ring { border-color: #98611940; }
+      html[data-theme="light"] .entry-loader__ring::after, html[data-theme="light"] .entry-loader__trail::after { background: #986119; }
+      html[data-theme="light"] .entry-loader__trail { background: #98611918; }
       @keyframes entry-orbit { to { transform: rotate(360deg); } }
       @keyframes entry-trail { 0%, 100% { transform: translateX(-32px); opacity: 0; } 30%, 70% { opacity: 1; } 90% { transform: translateX(96px); opacity: 0; } }
       @media (prefers-reduced-motion: reduce) { .entry-loader__ring, .entry-loader__trail::after { animation: none; } .entry-loader__trail::after { transform: translateX(32px); } }

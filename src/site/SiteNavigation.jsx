@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import resume from '../docs/DuongTanMinh_CV.pdf?url';
 import { useSession } from './AuthProvider';
 import VisitorStats from './VisitorStats';
+import ThemeToggle from './ThemeToggle';
 
 export function siteLink(page = 'portfolio', post) {
   if (!location.pathname.includes('design-preview')) {
-    return `${import.meta.env.BASE_URL}${page === 'portfolio' ? '#home' : `#/${page}${post ? `/${encodeURIComponent(post)}` : ''}`}`;
+    return `${import.meta.env.BASE_URL}${page === 'portfolio' ? '' : `${page}${post ? `/${encodeURIComponent(post)}` : ''}`}`;
   }
   const params = new URLSearchParams({ frame: '1', concept: 'mix', page });
   if (post) params.set('post', post);
@@ -49,7 +50,7 @@ export default function SiteNavigation({ concept, page = 'portfolio', activeSect
       </div>}
     </div>
     </div>
-    <a className="resume-link" href={resume} download="DuongTanMinh_CV.pdf">Resume <span aria-hidden="true">↓</span></a>
+    <div className="nav-actions"><ThemeToggle /><a className="resume-link" href={resume} download="DuongTanMinh_CV.pdf">Resume <span aria-hidden="true">↓</span></a></div>
   </nav>;
 }
 

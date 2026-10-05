@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import moonUrl from '../images/moon.jpg';
+import sunUrl from '../images/sun.jpg';
+import { useTheme } from './ThemeProvider';
 
 export default function ThreeScene({ concept, section, progress = 0 }) {
+  const { theme } = useTheme();
+  const solar = theme === 'light' && concept === 'a';
   const host = useRef(null);
   const controller = useRef(null);
   const [unavailable, setUnavailable] = useState(false);
@@ -65,27 +69,52 @@ export default function ThreeScene({ concept, section, progress = 0 }) {
     function invalidate() {
       if (!disposed && visible && !document.hidden && !frame) frame = requestAnimationFrame(draw);
     }
-    scene.add(new THREE.AmbientLight(0xc4d5e4, 0.65));
-    const light = new THREE.DirectionalLight(0xffffff, 1.4);
+    scene.add(new THREE.AmbientLight(solar ? 0xffe4b0 : 0xc4d5e4, 0.65));
+    const light = new THREE.DirectionalLight(solar ? 0xfff0cf : 0xffffff, solar ? 0.85 : 1.4);
     light.position.set(3, 4, 5);
     scene.add(light);
-    const rim = new THREE.DirectionalLight(0x8bbed5, 0.8);
+    const rim = new THREE.DirectionalLight(solar ? 0xffac45 : 0x8bbed5, 0.8);
     rim.position.set(-4, 1, -1);
     scene.add(rim);
 
     if (concept === 'a') {
-      const material = new THREE.MeshStandardMaterial({ color: 0xc4d1db, roughness: 0.95 });
+      const material = new THREE.MeshStandardMaterial({ color: solar ? 0xfff3d6 : 0xc4d1db, roughness: 0.95, emissive: solar ? 0xff7a08 : 0x000000, emissiveIntensity: solar ? 0.18 : 0 });
       addMesh(new THREE.SphereGeometry(1.55, 32, 24), material);
-      const texture = new THREE.TextureLoader().load(moonUrl, () => { if (!disposed) invalidate(); }, undefined, () => invalidate());
+      const texture = new THREE.TextureLoader().load(solar ? sunUrl : moonUrl, () => { if (!disposed) invalidate(); }, undefined, () => invalidate());
       texture.encoding = THREE.sRGBEncoding;
       material.map = texture;
+      if (solar) {
+        material.emissiveMap = texture;
+        material.bumpMap = texture;
+        material.bumpScale = 0.035;
+        addMesh(new THREE.SphereGeometry(1.7, 32, 24), new THREE.ShaderMaterial({
+          transparent: true, depthWrite: false, side: THREE.BackSide,
+          vertexShader: `varying vec3 surfaceNormal; varying vec3 viewDirection;
+            void main() {
+              vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+              surfaceNormal = normalize(normalMatrix * normal);
+              viewDirection = normalize(-viewPosition.xyz);
+              gl_Position = projectionMatrix * viewPosition;
+            }`,
+          fragmentShader: `varying vec3 surfaceNormal; varying vec3 viewDirection;
+            void main() {
+              float edge = 1.0 - abs(dot(normalize(surfaceNormal), normalize(viewDirection)));
+              gl_FragColor = vec4(1.0, 0.57, 0.12, pow(edge, 2.5) * (1.0 - edge) * 1.2);
+            }`,
+        }));
+      }
       resources.push(texture);
-      const ring = addMesh(new THREE.TorusGeometry(2.1, 0.009, 6, 80), new THREE.MeshBasicMaterial({ color: 0xb8c9db, transparent: true, opacity: 0.4 }));
+      const ring = addMesh(new THREE.TorusGeometry(2.1, 0.009, 6, 80), new THREE.MeshBasicMaterial({ color: solar ? 0xb68130 : 0xb8c9db, transparent: true, opacity: solar ? 0.3 : 0.4 }));
       ring.rotation.x = 1.1;
       ring.rotation.z = 0.25;
+      if (solar) {
+        const outerRing = addMesh(new THREE.TorusGeometry(2.35, 0.007, 6, 80), new THREE.MeshBasicMaterial({ color: 0xc49548, transparent: true, opacity: 0.2 }));
+        outerRing.rotation.x = 1.2;
+        outerRing.rotation.z = -0.5;
+      }
     } else if (concept === 'b' || concept === 'layers') {
       for (let i = 0; i < 3; i++) {
-        const material = new THREE.MeshStandardMaterial({ color: i === 1 ? 0x567068 : 0xa5b6af, metalness: 0.25, roughness: 0.5 });
+        const material = new THREE.MeshStandardMaterial({ color: theme === 'light' ? (i === 1 ? 0xb87828 : 0xdec8a2) : (i === 1 ? 0x567068 : 0xa5b6af), metalness: 0.25, roughness: 0.5 });
         const slab = addMesh(new THREE.BoxGeometry(2.55, 0.18, 1.85), material);
         slab.position.y = (i - 1) * 0.8;
         slabs.push(slab);
@@ -166,12 +195,13 @@ export default function ThreeScene({ concept, section, progress = 0 }) {
       renderer.dispose();
       renderer.domElement.remove();
     };
-  }, [concept]);
+  }, [concept, theme, solar]);
 
-  useEffect(() => { controller.current?.setSection(section); }, [section]);
-  useEffect(() => { controller.current?.setProgress(progress); }, [progress]);
+  useEffect(() => { controller.current?.setSection(section); }, [section, theme]);
+  useEffect(() => { controller.current?.setProgress(progress); }, [progress, theme]);
 
-  return <div ref={host} className={`three-scene ${concept === 'c' ? 'immersive-scene' : ''} ${unavailable ? 'scene-unavailable' : ''}`} aria-hidden="true">
+  return <div ref={host} className={`three-scene ${solar ? 'solar-scene' : ''} ${concept === 'c' ? 'immersive-scene' : ''} ${unavailable ? 'scene-unavailable' : ''}`} aria-hidden="true">
+    {solar && <div className="hero-sun"><div className="hero-sun-disc"><img src={sunUrl} alt="" /></div><span className="hero-sun-orbit" /><span className="hero-sun-orbit hero-sun-orbit--outer" /></div>}
     <div className="static-orbit"><span /><span /><span /></div>
   </div>;
 }

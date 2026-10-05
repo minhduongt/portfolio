@@ -12,6 +12,7 @@ try{
  await mockVisitorTracking(page);const errors=[];page.on('pageerror',e=>errors.push(e.message));const requests=[];const failures=new Map();const externalResponses=[];page.on('request',r=>requests.push(r.url()));page.on('requestfailed',r=>failures.set(r.url(),r.failure()?.errorText));page.on('response',r=>{if(r.url().includes('blocked-assets'))externalResponses.push(r.url())});
  await page.route('**/api/v1/tools',r=>r.fulfill({json:{success:true,data:[{slug:'html-email-builder',component:'html-email-builder',name:'HTML Preview / Email Builder',description:'Build an email locally.',category:'HTML & email',visibility:'public'}]}}));
  await page.goto(process.env.SITE_URL || 'http://127.0.0.1:4177/#/tools');
+ await page.getByRole('button',{name:'HTML editor',exact:true}).click();
  await page.getByLabel('HTML source',{exact:true}).waitFor();
  const iframe=page.locator('iframe[title="HTML email preview"]'),frame=page.frameLocator('iframe[title="HTML email preview"]');
  await frame.getByRole('heading',{name:'A little space for something new.'}).waitFor();assert.equal(await iframe.getAttribute('sandbox'),'');assert((await iframe.getAttribute('srcdoc')).includes('Content-Security-Policy'));
