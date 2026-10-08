@@ -52,8 +52,8 @@ export function timestampDate(value, unit) {
   if (!Number.isSafeInteger(ms) || Math.abs(ms) > 8.64e15) throw new Error('Timestamp is outside the supported date range or millisecond precision.');
   return new Date(ms);
 }
-export function describeDate(date) {
-  return `UTC: ${date.toISOString()}\nLocal: ${date.toLocaleString()}\nUNIX seconds: ${Math.floor(date.getTime() / 1000)}\nUNIX milliseconds: ${date.getTime()}`;
+export function describeDate(date, locale, t = value => value) {
+  return `UTC: ${date.toISOString()}\n${t('Local')}: ${date.toLocaleString(locale)}\n${t('UNIX seconds')}: ${Math.floor(date.getTime() / 1000)}\n${t('UNIX milliseconds')}: ${date.getTime()}`;
 }
 export async function hashText(input, algorithm) {
   if (!['SHA-1', 'SHA-256', 'SHA-384', 'SHA-512'].includes(algorithm)) throw new Error('Choose a supported SHA algorithm.');
@@ -70,7 +70,8 @@ function decodeSegment(segment) {
   return bytes;
 }
 function jsonObject(text, label) {
-  const value = JSON.parse(text);
+  let value;
+  try { value = JSON.parse(text); } catch { throw new Error('Enter valid JSON for the JWT header or payload.'); }
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${label} must be a JSON object.`);
   return value;
 }
@@ -95,13 +96,14 @@ export async function encodeJwt(payloadText, secret, algorithm = 'HS256') {
   const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   return `${body}.${base64url(new Uint8Array(await crypto.subtle.sign('HMAC', key, encoder.encode(body))))}`;
 }
-export function parseCron(expression, timezone, start) {
+export function parseCron(expression, timezone, start, locale = 'en-GB') {
   const fields = expression.trim().split(/\s+/u);
   if (fields.length !== 5) throw new Error('Use five fields: minute, hour, day of month, month, day of week.');
   if (expression.length > 200 || /\bH\b/u.test(expression)) throw new Error('Use a standard expression without hashed H fields.');
-  new Intl.DateTimeFormat('en', { timeZone: timezone }).format(new Date());
+  try { new Intl.DateTimeFormat('en', { timeZone: timezone }).format(new Date()); } catch { throw new Error('Choose a valid IANA timezone.'); }
   const date = parseIsoDate(start);
-  const schedule = CronExpressionParser.parse(expression, { tz: timezone, currentDate: date });
-  const formatter = new Intl.DateTimeFormat('en-GB', { timeZone: timezone, dateStyle: 'medium', timeStyle: 'long' });
+  let schedule;
+  try { schedule = CronExpressionParser.parse(expression, { tz: timezone, currentDate: date }); } catch { throw new Error('Enter a valid five-field cron expression.'); }
+  const formatter = new Intl.DateTimeFormat(locale, { timeZone: timezone, dateStyle: 'medium', timeStyle: 'long' });
   return { fields, timezone, runs: Array.from({ length: 5 }, () => { const next = schedule.next().toDate(); return { utc: next.toISOString(), zoned: formatter.format(next) }; }) };
 }

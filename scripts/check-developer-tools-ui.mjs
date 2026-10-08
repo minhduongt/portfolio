@@ -3,7 +3,7 @@ import { mockVisitorTracking } from './mock-visitor-tracking.mjs';
 import {readFileSync} from 'node:fs';
 import {chromium} from '../.tmp/tooling/node_modules/playwright/index.mjs';
 import {tools} from '../src/site/data.js';
-const keys={markdown:'markdown-editor',credentials:'password-uuid-generator',lorem:'lorem-ipsum-generator',timestamp:'unix-timestamp-converter',hash:'hash-generator',jwt:'jwt-encoder-decoder',cron:'cron-parser'};
+const keys={url:'url-encoder-decoder',markdown:'markdown-editor',credentials:'password-uuid-generator',lorem:'lorem-ipsum-generator',timestamp:'unix-timestamp-converter',hash:'hash-generator',jwt:'jwt-encoder-decoder',cron:'cron-parser'};
 const records=tools.filter(tool=>keys[tool.id]).map(tool=>({...tool,slug:keys[tool.id],component:keys[tool.id],visibility:'public'}));
 const browser=await chromium.launch({channel:'msedge',headless:true});
 try {
@@ -12,6 +12,13 @@ try {
  await page.route('**/api/v1/tools',r=>r.fulfill({json:{success:true,data:records}}));
  await page.goto(process.env.SITE_URL || 'http://127.0.0.1:4177/#/tools');
  const select=async id=>{const tool=records.find(item=>item.id===id);await page.getByRole('button',{name:tool.name,exact:true}).click();await page.getByRole('heading',{name:tool.name,exact:true}).waitFor()};
+ await select('url');
+ for (const width of [1440, 390]) {
+  await page.setViewportSize({width,height:950});
+  const padding=await page.getByRole('button',{name:'Decode',exact:true}).evaluate(element=>{const style=getComputedStyle(element);return [parseFloat(style.paddingLeft),parseFloat(style.paddingRight)]});
+  assert(padding.every(value=>value>=14),'Secondary action buttons have horizontal padding at desktop and mobile widths');
+ }
+ await page.setViewportSize({width:1440,height:950});
  await select('markdown');const markdown='# Test preview\n\n**Bold**\n\n| A | B |\n| - | - |\n| 1 | 2 |\n\n<script>window.injected=true</script>\n<img src="https://should-not-load.invalid/pixel" onerror="window.injected=true">\n[unsafe](javascript:alert(1))';
  await page.getByLabel('Markdown source').fill(markdown);await page.locator('.markdown-preview h1').waitFor();assert.equal(await page.locator('.markdown-preview table').count(),1);assert.equal(await page.locator('.markdown-preview script, .markdown-preview img, .markdown-preview a[href^="javascript:"]').count(),0);assert.equal(await page.evaluate(()=>window.injected),undefined);
  const downloadPromise=page.waitForEvent('download');await page.getByRole('button',{name:'Download .md',exact:true}).click();const download=await downloadPromise;assert.equal(download.suggestedFilename(),'notes.md');assert.equal(readFileSync(await download.path(),'utf8'),markdown);

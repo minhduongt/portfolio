@@ -64,11 +64,12 @@ try {
   await page.getByRole('link', { name: 'Open administration', exact: true }).click();
   await page.getByRole('button', { name: 'New blog', exact: true }).click();
   await page.getByLabel('Slug', { exact: true }).fill('new-post'); await page.getByLabel('Title', { exact: true }).fill('New post');
-  await page.getByLabel('Blog HTML', { exact: true }).fill('<p>Saved article</p>');
+  await page.getByRole('textbox', { name: 'Blog Content', exact: true }).fill('Saved article');
   assert.notEqual(await page.getByRole('button', { name: 'Save content', exact: true }).evaluate(button => getComputedStyle(button).backgroundColor), 'rgba(0, 0, 0, 0)', 'Primary save action has a visible background');
   await page.screenshot({ path: '.tmp/screenshots/admin-editor.png', fullPage: true });
   await page.getByRole('button', { name: 'Save content', exact: true }).click();
   await page.getByRole('button', { name: 'Edit New post', exact: true }).click();
+  assert.equal(await page.getByRole('textbox', { name: 'Blog Content', exact: true }).innerText(), 'Saved article', 'Existing posts reopen as rich text');
   assert(await page.getByLabel('Slug', { exact: true }).isDisabled());
   await page.getByLabel('Visibility').selectOption('public');
   await page.getByRole('button', { name: 'Save content', exact: true }).click();
@@ -97,7 +98,7 @@ try {
   identity = 'reader'; await page.goto(`${base}#/login`);
   await page.getByLabel('Email', { exact: true }).fill('reader@example.com'); await page.getByLabel('Password', { exact: true }).fill('fixture-password');
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await page.getByText('You have limited access to blogs and tools.').waitFor();
+  await page.getByRole('button', { name: 'Sign out', exact: true }).waitFor();
   await page.goto(`${base}#/admin`); await page.getByText('Verified administrator access is required.').waitFor();
   assert.equal(await page.getByRole('button', { name: 'New blog', exact: true }).count(), 0);
   await page.goto(`${base}#/login`); await page.getByRole('button', { name: 'Sign out', exact: true }).click();

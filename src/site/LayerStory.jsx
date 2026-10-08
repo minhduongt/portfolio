@@ -1,9 +1,11 @@
+import { useLanguage } from '../i18n/LanguageProvider';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { capabilities } from './content';
 
 const ThreeScene = lazy(() => import('./ThreeScene'));
 
 export default function LayerStory() {
+  const { t } = useLanguage();
   const root = useRef(null);
   const chapters = useRef([]);
   const [progress, setProgress] = useState(0);
@@ -36,20 +38,20 @@ export default function LayerStory() {
   };
   return <section className="layer-story content-width" id="layers" ref={root} data-section>
     <div className="layer-stage">
-      <div className="section-heading"><span className="eyebrow">02 / HOW I BUILD</span><h2>One product.<br />Three connected layers.</h2><p className="layer-introduction">Scroll to unpack the craft — from the interface to deployment.</p></div>
+      <div className="section-heading"><span className="eyebrow">{t("02 / HOW I BUILD")}</span><h2>{t('One product.')}<br />{t('Three connected layers.')}</h2><p className="layer-introduction">{t("Scroll to unpack the craft — from the interface to deployment.")}</p></div>
       <div className="layer-scene"><Suspense fallback={<div className="scene-fallback" />}><ThreeScene concept="layers" progress={progress} /></Suspense>
-        <span className="scene-caption">INTERFACE → LOGIC → DELIVERY</span>
+        <span className="scene-caption">{t("INTERFACE → LOGIC → DELIVERY")}</span>
       </div>
-      <div className="layer-selectors" role="group" aria-label="Explore a product layer">{capabilities.map((item, index) =>
-        <button key={item.title} onClick={() => choose(index)} aria-pressed={active === index}><span>0{index + 1}</span>{item.title}</button>)}</div>
+      <div className="layer-selectors" role="group" aria-label={t("Explore a product layer")}>{capabilities.map((item, index) =>
+        <button key={item.title} onClick={() => choose(index)} aria-pressed={active === index}><span>0{index + 1}</span>{t(item.title)}</button>)}</div>
     </div>
     <div className="layer-chapters">{capabilities.map((item, index) => <article className={`layer-step ${active === index ? 'is-active' : ''}`} ref={element => { chapters.current[index] = element; }} key={item.title}>
-      <span className="eyebrow">LAYER 0{index + 1}</span><h3>{item.title}</h3><p className="layer-description">{item.description}</p><p>{item.items}</p>
-      <div className="layer-example"><span className="eyebrow">IN PRACTICE / PHUONGNAMCOMPANY</span><p>{[
+      <span className="eyebrow">{t('LAYER')} 0{index + 1}</span><h3>{t(item.title)}</h3><p className="layer-description">{t(item.description)}</p><p>{t(item.items)}</p>
+      <div className="layer-example"><span className="eyebrow">{t("IN PRACTICE / PHUONGNAMCOMPANY")}</span><p>{t([
         'A responsive React and TypeScript interface with ShadcnUI, a PWA experience and web push notifications.',
         'Strapi REST APIs and PostgreSQL connect authentication, task operations, warehouse and material management.',
         'GitHub Actions, Docker, Ubuntu and Nginx take the application from development to deployment.',
-      ][index]}</p></div>
+      ][index])}</p></div>
     </article>)}</div>
   </section>;
 }

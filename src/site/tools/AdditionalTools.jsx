@@ -1,32 +1,36 @@
+import { useLanguage } from '../../i18n/LanguageProvider';
 import { useEffect, useRef, useState } from 'react';
 import { colorValues, formatPowerFx } from './toolLogic';
 
 export function CopyButton({ value }) {
+  const { t } = useLanguage();
   const [status, setStatus] = useState('');
   useEffect(() => setStatus(''), [value]);
   return <><button className="copy-button" disabled={!value} onClick={async () => {
     try { await navigator.clipboard.writeText(value); setStatus('Copied'); }
     catch { setStatus('Select the value and copy it manually.'); }
-  }}>{status === 'Copied' ? 'Copied' : 'Copy output'}</button><span className="copy-status" role="status">{status}</span></>;
+  }}>{t(status === 'Copied' ? 'Copied' : 'Copy output')}</button><span className="copy-status" role="status">{t(status)}</span></>;
 }
 
 function PowerFx() {
+  const { t } = useLanguage();
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [locale, setLocale] = useState('dot');
   const [error, setError] = useState('');
   const reset = () => { setOutput(''); setError(''); };
   return <>
-    <div className="workspace-actions"><button onClick={() => { setInput(locale === 'dot' ? 'If(IsBlank(TextInput1.Text),Notify("Enter a name",NotificationType.Error),Patch(Contacts,Defaults(Contacts),{Name:TextInput1.Text}));Reset(TextInput1)' : 'Set(amount;1,25);;Notify("Saved")'); reset(); }}>Load sample</button><button onClick={() => { setInput(''); reset(); }}>Clear</button></div>
-    <label className="utility-field">Formula separators<select value={locale} onChange={event => { setLocale(event.target.value); reset(); }}><option value="dot">Decimal dot · arguments , · chaining ;</option><option value="comma">Decimal comma · arguments ; · chaining ;;</option></select></label>
-    <div className="tool-editor-grid"><label><span>Power Fx input</span><textarea spellCheck="false" value={input} onChange={event => { setInput(event.target.value); reset(); }} placeholder="Paste a Power Apps formula…" /></label><label><span>Formatted Power Fx</span><textarea spellCheck="false" value={output} readOnly placeholder="Your formatted formula…" /></label></div>
-    <div className="tool-run-actions"><button className="button-primary" onClick={() => { try { setOutput(formatPowerFx(input, locale)); setError(''); } catch (failure) { setOutput(''); setError(failure.message); } }}>Format Power Fx</button><CopyButton value={output} /></div>
-    {error && <p className="tool-error" role="alert">{error}</p>}
-    <p className="mock-note">Layout formatting only; formulas are not evaluated or semantically validated. Strings, quoted names and comments are preserved. Interpolated strings ($"…") are currently unsupported. Choose your formula’s existing separators.</p>
+    <div className="workspace-actions"><button onClick={() => { setInput(locale === 'dot' ? 'If(IsBlank(TextInput1.Text),Notify("Enter a name",NotificationType.Error),Patch(Contacts,Defaults(Contacts),{Name:TextInput1.Text}));Reset(TextInput1)' : 'Set(amount;1,25);;Notify("Saved")'); reset(); }}>{t("Load sample")}</button><button onClick={() => { setInput(''); reset(); }}>{t("Clear")}</button></div>
+    <label className="utility-field">{t("Formula separators")}<select value={locale} onChange={event => { setLocale(event.target.value); reset(); }}><option value="dot">{t("Decimal dot · arguments , · chaining ;")}</option><option value="comma">{t("Decimal comma · arguments ; · chaining ;;")}</option></select></label>
+    <div className="tool-editor-grid"><label><span>{t("Power Fx input")}</span><textarea spellCheck="false" value={input} onChange={event => { setInput(event.target.value); reset(); }} placeholder={t("Paste a Power Apps formula…")} /></label><label><span>{t("Formatted Power Fx")}</span><textarea spellCheck="false" value={output} readOnly placeholder={t("Your formatted formula…")} /></label></div>
+    <div className="tool-run-actions"><button className="button-primary" onClick={() => { try { setOutput(formatPowerFx(input, locale)); setError(''); } catch (failure) { setOutput(''); setError(failure.message); } }}>{t("Format Power Fx")}</button><CopyButton value={output} /></div>
+    {error && <p className="tool-error" role="alert">{t(error)}</p>}
+    <p className="mock-note">{t("Layout formatting only; formulas are not evaluated or semantically validated. Strings, quoted names and comments are preserved. Interpolated strings ($\"…\") are currently unsupported. Choose your formula’s existing separators.")}</p>
   </>;
 }
 
 function ColorPicker() {
+  const { t } = useLanguage();
   const [input, setInput] = useState('#A6CBB6');
   const [values, setValues] = useState(() => colorValues('#A6CBB6'));
   const [error, setError] = useState('');
@@ -39,22 +43,23 @@ function ColorPicker() {
     catch (failure) { setError(failure.message); }
   };
   return <>
-    <div className="color-controls"><label className="utility-field">Choose color<input type="color" value={values.hex} onChange={event => change(event.target.value)} /></label><label className="utility-field">HEX color<input type="text" spellCheck="false" value={input} onChange={event => change(event.target.value)} /></label>
+    <div className="color-controls"><label className="utility-field">{t("Choose color")}<input type="color" value={values.hex} onChange={event => change(event.target.value)} /></label><label className="utility-field">{t("HEX color")}<input type="text" spellCheck="false" value={input} onChange={event => change(event.target.value)} /></label>
       {typeof window.EyeDropper === 'function' && <button className="copy-button" disabled={picking} onClick={async () => {
         abort.current = new AbortController(); setPicking(true);
         try { const selected = await new window.EyeDropper().open({ signal: abort.current.signal }); change(selected.sRGBHex); }
         catch (failure) { if (failure.name !== 'AbortError') setError('Screen color sampling is unavailable. Use the color picker.'); }
         finally { if (!abort.current.signal.aborted) setPicking(false); }
-      }}>{picking ? 'Choose on screen…' : 'Pick from screen'}</button>}
+      }}>{t(picking ? 'Choose on screen…' : 'Pick from screen')}</button>}
     </div>
-    <div className="color-swatch" style={{ backgroundColor: values.hex }} aria-label={`Color preview ${values.hex}`} />
-    <div className="color-values">{Object.entries(values).map(([format, value]) => <div key={format}><label className="utility-field">{format.toUpperCase()} value<input value={value} readOnly /></label><CopyButton value={value} /></div>)}</div>
-    {error && <p className="tool-error" role="alert">{error}</p>}
-    <p className="mock-note">HEX accepts 3 or 6 digits. RGB and HSL use the selected opaque sRGB color. Screen sampling appears when supported by your browser.</p>
+    <div className="color-swatch" style={{ backgroundColor: values.hex }} aria-label={t('Color preview {{color}}', { color: values.hex })} />
+    <div className="color-values">{Object.entries(values).map(([format, value]) => <div key={format}><label className="utility-field">{format.toUpperCase()} {t("value")}<input value={value} readOnly /></label><CopyButton value={value} /></div>)}</div>
+    {error && <p className="tool-error" role="alert">{t(error)}</p>}
+    <p className="mock-note">{t("HEX accepts 3 or 6 digits. RGB and HSL use the selected opaque sRGB color. Screen sampling appears when supported by your browser.")}</p>
   </>;
 }
 
 function ImageConverter() {
+  const { t } = useLanguage();
   const [file, setFile] = useState(null);
   const [format, setFormat] = useState('image/webp');
   const [width, setWidth] = useState('1920');
@@ -103,25 +108,27 @@ function ImageConverter() {
     }
   };
   return <>
-    <label className="utility-field image-upload">Image file<input type="file" accept="image/png,image/jpeg,image/webp" onChange={event => { invalidate(); setFile(event.target.files?.[0] || null); }} /></label>
-    {file && <p className="file-summary">{file.name} · {(file.size / 1024).toFixed(1)} KiB</p>}
-    <div className="image-options"><label className="utility-field">Output format<select value={format} onChange={event => { invalidate(); setFormat(event.target.value); }}><option value="image/png">PNG</option><option value="image/jpeg">JPEG</option><option value="image/webp">WebP</option></select></label>
-      <label className="utility-field">Maximum width<input type="number" min="1" max="8192" value={width} onChange={event => { invalidate(); setWidth(event.target.value); }} /></label>
-      <label className="utility-field">Maximum height<input type="number" min="1" max="8192" value={height} onChange={event => { invalidate(); setHeight(event.target.value); }} /></label>
-      {format !== 'image/png' && <label className="utility-field">Quality · {quality}%<input type="range" min="1" max="100" value={quality} onChange={event => { invalidate(); setQuality(event.target.value); }} /></label>}
-      {format === 'image/jpeg' && <label className="utility-field">JPEG background<input type="color" value={background} onChange={event => { invalidate(); setBackground(event.target.value); }} /></label>}
+    <label className="utility-field image-upload">{t("Image file")}<input type="file" accept="image/png,image/jpeg,image/webp" onChange={event => { invalidate(); setFile(event.target.files?.[0] || null); }} /></label>
+    {file && <p className="file-summary">{file.name} · {(file.size / 1024).toFixed(1)} {t("KiB")}</p>}
+    <div className="image-options"><label className="utility-field">{t("Output format")}<select value={format} onChange={event => { invalidate(); setFormat(event.target.value); }}><option value="image/png">{t("PNG")}</option><option value="image/jpeg">{t("JPEG")}</option><option value="image/webp">{t("WebP")}</option></select></label>
+      <label className="utility-field">{t("Maximum width")}<input type="number" min="1" max="8192" value={width} onChange={event => { invalidate(); setWidth(event.target.value); }} /></label>
+      <label className="utility-field">{t("Maximum height")}<input type="number" min="1" max="8192" value={height} onChange={event => { invalidate(); setHeight(event.target.value); }} /></label>
+      {format !== 'image/png' && <label className="utility-field">{t("Quality ·")} {quality}%<input type="range" min="1" max="100" value={quality} onChange={event => { invalidate(); setQuality(event.target.value); }} /></label>}
+      {format === 'image/jpeg' && <label className="utility-field">{t("JPEG background")}<input type="color" value={background} onChange={event => { invalidate(); setBackground(event.target.value); }} /></label>}
     </div>
-    <div className="tool-run-actions"><button className="button-primary" disabled={busy} onClick={convert}>{busy ? 'Converting…' : 'Convert image'}</button>{result && <a className="button-secondary" href={result.url} download={result.name}>Download converted image</a>}</div>
-    <div role="status">{result && <p className="file-summary">{result.width} × {result.height} px · {(result.size / 1024).toFixed(1)} KiB</p>}</div>
-    {result && <img className="converted-image" src={result.url} alt="Converted image preview" />}
-    {error && <p className="tool-error" role="alert">{error}</p>}
-    <p className="mock-note">PNG, JPEG and WebP input only. Files stay in your browser. Resize preserves proportions without enlarging. Limit: 20 MiB / 24 million pixels. Output is a static image; animation and original metadata are not retained. JPEG uses the selected background for transparency.</p>
+    <div className="tool-run-actions"><button className="button-primary" disabled={busy} onClick={convert}>{t(busy ? 'Converting…' : 'Convert image')}</button>{result && <a className="button-secondary" href={result.url} download={result.name}>{t("Download converted image")}</a>}</div>
+    <div role="status">{result && <p className="file-summary">{result.width} × {result.height} {t("px ·")} {(result.size / 1024).toFixed(1)} {t("KiB")}</p>}</div>
+    {result && <img className="converted-image" src={result.url} alt={t("Converted image preview")} />}
+    {error && <p className="tool-error" role="alert">{t(error)}</p>}
+    <p className="mock-note">{t("PNG, JPEG and WebP input only. Files stay in your browser. Resize preserves proportions without enlarging. Limit: 20 MiB / 24 million pixels. Output is a static image; animation and original metadata are not retained. JPEG uses the selected background for transparency.")}</p>
   </>;
 }
 
 export function ToolFrame({ tool, children }) {
-  return <section className="tool-workspace" aria-label={`${tool.name} workspace`}><div className="workspace-heading"><div><span className="eyebrow">{tool.category} / LOCAL UTILITY</span><h2>{tool.name}</h2><p>{tool.description}</p></div><span className="tool-symbol" aria-hidden="true">{tool.icon}</span></div>{children}</section>;
+  const { t } = useLanguage();
+  return <section className="tool-workspace" aria-label={t('{{name}} workspace', { name: t(tool.name) })}><div className="workspace-heading"><div><span className="eyebrow">{t(tool.category)} {t("/ LOCAL UTILITY")}</span><h2>{t(tool.name)}</h2><p>{t(tool.description)}</p></div><span className="tool-symbol" aria-hidden="true">{tool.icon}</span></div>{children}</section>;
 }
 export default function AdditionalTools({ tool }) {
+  const { t } = useLanguage();
   return <ToolFrame tool={tool}>{tool.id === 'image' ? <ImageConverter /> : tool.id === 'powerfx' ? <PowerFx /> : <ColorPicker />}</ToolFrame>;
 }

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useLanguage } from '../i18n/LanguageProvider';
+import { useEffect, useMemo, useState } from 'react';
 import quotes from '../data/quotes';
 
 function TypedQuote({ quote }) {
@@ -17,7 +18,7 @@ function TypedQuote({ quote }) {
         position++; setText(characters.slice(0, position).join(''));
         if (position === characters.length) complete();
       }, Math.min(32, 2400 / characters.length));
-    }
+    } else complete();
     const reduce = () => { if (preference.matches) complete(); };
     preference.addEventListener('change', reduce);
     return () => { clearInterval(timer); preference.removeEventListener('change', reduce); };
@@ -30,10 +31,12 @@ function TypedQuote({ quote }) {
 
 // Reuse existing portfolio quotes; exclude the current item on every change.
 export default function QuoteRotator() {
+  const { t, language } = useLanguage();
   const [index, setIndex] = useState(() => Math.floor(Math.random() * quotes.length));
   const [playing, setPlaying] = useState(() => !matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [visible, setVisible] = useState(() => !document.hidden);
-  const [announcement, setAnnouncement] = useState('');
+  const [announcedIndex, setAnnouncedIndex] = useState(null);
+  const quote = useMemo(() => ({ ...quotes[index], q: t(quotes[index].q), a: t(quotes[index].a) }), [index, language, t]);
   const nextIndex = current => (current + 1 + Math.floor(Math.random() * (quotes.length - 1))) % quotes.length;
   useEffect(() => {
     const visibility = () => setVisible(!document.hidden);
@@ -51,15 +54,15 @@ export default function QuoteRotator() {
   const next = () => {
     const selected = nextIndex(index);
     setIndex(selected);
-    setAnnouncement(`${quotes[selected].q} — ${quotes[selected].a}`);
+    setAnnouncedIndex(selected);
   };
   return <div className="quote-rotator">
-    <span className="eyebrow">A LITTLE PERSPECTIVE</span>
-    <TypedQuote key={index} quote={quotes[index]} />
-    <div className="quote-controls"><span>{playing ? 'A new thought every 15 seconds' : 'Take your time'}</span>
-      <button onClick={() => setPlaying(!playing)} aria-label={playing ? 'Pause quotes' : 'Play quotes'}>{playing ? 'Pause' : 'Play'}</button>
-      <button onClick={next} aria-label="Next quote">Next quote <span aria-hidden="true">↻</span></button>
+    <span className="eyebrow">{t("A LITTLE PERSPECTIVE")}</span>
+    <TypedQuote key={index} quote={quote} />
+    <div className="quote-controls"><span>{t(playing ? 'A new thought every 15 seconds' : 'Take your time')}</span>
+      <button onClick={() => setPlaying(!playing)} aria-label={t(playing ? 'Pause quotes' : 'Play quotes')}>{t(playing ? 'Pause' : 'Play')}</button>
+      <button onClick={next} aria-label={t("Next quote")}>{t("Next quote")} <span aria-hidden="true">↻</span></button>
     </div>
-    <span className="sr-only" aria-live="polite">{announcement}</span>
+    <span className="sr-only" aria-live="polite">{announcedIndex !== null && `${t(quotes[announcedIndex].q)} — ${t(quotes[announcedIndex].a)}`} </span>
   </div>;
 }

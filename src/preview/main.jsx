@@ -6,6 +6,7 @@ import Pages from '../site/Pages';
 import '../site/site.css';
 import '../site/theme.css';
 import ThemeProvider from '../site/ThemeProvider';
+import LanguageProvider from '../i18n/LanguageProvider';
 const base = import.meta.env.BASE_URL;
 
 function Preview() {
@@ -45,4 +46,4 @@ function Preview() {
 const params = new URLSearchParams(location.search);
 const concept = Object.hasOwn(concepts, params.get('concept')) ? params.get('concept') : 'mix';
 const page = concept === 'mix' && ['blogs', 'tools'].includes(params.get('page')) ? params.get('page') : 'portfolio';
-createRoot(document.getElementById('root')).render(<React.StrictMode><ThemeProvider>{params.get('frame') === '1' ? (page === 'portfolio' ? <Portfolio concept={concept} /> : <Pages page={page} postSlug={params.get('post')} />) : <Preview />}</ThemeProvider></React.StrictMode>);
+createRoot(document.getElementById('root')).render(<React.StrictMode><LanguageProvider><ThemeProvider>{params.get('frame') === '1' ? (page === 'portfolio' ? <Portfolio concept={concept} /> : <Pages page={page} postSlug={params.get('post')} />) : <Preview />}</ThemeProvider></LanguageProvider></React.StrictMode>);

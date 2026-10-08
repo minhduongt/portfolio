@@ -48,12 +48,21 @@ export function contentPayload(kind, form, editing = false) {
     if (editing?.coverImageUrl && !form.coverImageUrl) throw new Error('The current API cannot remove an existing cover image. Replace it with another HTTPS URL.');
     Object.assign(data, { title: form.title.trim(), contentHtml: form.contentHtml, excerpt: form.excerpt || '', tags: (form.tags || '').split(',').map(tag => tag.trim()).filter(Boolean) });
     if (!data.title || !data.contentHtml.trim()) throw new Error('Title and blog content are required.');
-    if (form.coverImageUrl) { if (new URL(form.coverImageUrl).protocol !== 'https:') throw new Error('Cover image must use HTTPS.'); data.coverImageUrl = form.coverImageUrl; }
+    if (form.coverImageUrl) {
+      let url;
+      try { url = new URL(form.coverImageUrl); } catch { throw new Error('Enter a valid HTTPS cover image URL.'); }
+      if (url.protocol !== 'https:') throw new Error('Cover image must use HTTPS.');
+      data.coverImageUrl = form.coverImageUrl;
+    }
   } else {
-    const config = JSON.parse(form.config || '{}', (_key, value) => {
+    let config;
+    try { config = JSON.parse(form.config || '{}', (_key, value) => {
       if (typeof value === 'number' && (!Number.isFinite(value) || (Number.isInteger(value) && !Number.isSafeInteger(value)))) throw new Error('Config numbers exceed JavaScript precision.');
       return value;
-    });
+    }); } catch (error) {
+      if (error instanceof SyntaxError) throw new Error('Enter valid JSON for the tool config.');
+      throw error;
+    }
     if (!config || Array.isArray(config) || typeof config !== 'object') throw new Error('Tool config must be a JSON object.');
     Object.assign(data, { name: form.name.trim(), description: form.description.trim(), component: form.component, category: form.category || '', sortOrder: Number(form.sortOrder || 0), config });
     if (!data.name || !data.description) throw new Error('Tool name and description are required.');

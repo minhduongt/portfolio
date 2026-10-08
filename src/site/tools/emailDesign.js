@@ -1,3 +1,5 @@
+import { emailButtonStyles } from './emailTemplates.js';
+
 export const emailBlockTypes = {
   heading: { label: 'Heading', icon: 'H', description: 'A clear title' },
   text: { label: 'Text', icon: '¶', description: 'A message or paragraph' },
@@ -9,28 +11,28 @@ export const emailBlockTypes = {
   columns: { label: 'Two columns', icon: '▥', description: 'Side-by-side content' },
 };
 export const emailFonts = ['Arial', 'Georgia', 'Verdana', 'Tahoma'];
-export function createEmailBlock(type) {
+export function createEmailBlock(type, t = value => value) {
   if (!Object.hasOwn(emailBlockTypes, type)) throw new Error('Choose a supported email block.');
   return { id: crypto.randomUUID(), type, padding: 24, background: '#FFFFFF', color: '#526458', align: 'left', fontSize: type === 'heading' ? 30 : 16, bold: false,
-    ...(type === 'heading' ? { text: 'Your next big idea.', color: '#17231E' } : {}),
-    ...(type === 'text' ? { text: 'Add a little context, share your news, or tell your story.' } : {}),
-    ...(type === 'image' ? { src: '', alt: 'Describe your image', width: 100 } : {}),
-    ...(type === 'button' ? { text: 'Explore more', url: 'https://example.com', buttonColor: '#B8CEB9', color: '#17231E', radius: 4, fontSize: 14, bold: true } : {}),
+    ...(type === 'heading' ? { text: t('Your next big idea.'), color: '#17231E' } : {}),
+    ...(type === 'text' ? { text: t('Add a little context, share your news, or tell your story.') } : {}),
+    ...(type === 'image' ? { src: '', alt: t('Describe your image'), width: 100 } : {}),
+    ...(type === 'button' ? { text: t('Explore more'), url: 'https://example.com', buttonColor: '#B8CEB9', color: '#17231E', radius: 4, fontSize: 14, bold: true } : {}),
     ...(type === 'divider' ? { lineColor: '#DBE4DB', thickness: 1, padding: 16 } : {}),
     ...(type === 'spacer' ? { height: 32, padding: 0 } : {}),
-    ...(type === 'table' ? { rows: [{ label: 'Item', value: 'Details' }, { label: 'Total', value: '$49.00' }], fontSize: 14 } : {}),
-    ...(type === 'columns' ? { leftTitle: 'First story', leftText: 'Share something useful.', rightTitle: 'Second story', rightText: 'Give your readers another idea.', fontSize: 14 } : {}),
+    ...(type === 'table' ? { rows: [{ label: t('Item'), value: t('Details') }, { label: t('Total'), value: '$49.00' }], fontSize: 14 } : {}),
+    ...(type === 'columns' ? { leftTitle: t('First story'), leftText: t('Share something useful.'), rightTitle: t('Second story'), rightText: t('Give your readers another idea.'), fontSize: 14 } : {}),
   };
 }
-export function createEmailDesign(template, fields) {
-  const brand = { ...createEmailBlock('text'), text: fields.brand, color: fields.accent, background: '#17231E', fontSize: 15, bold: true };
-  const heading = { ...createEmailBlock('heading'), text: fields.heading };
-  const message = { ...createEmailBlock('text'), text: fields.message, padding: 20 };
-  const extras = template === 'receipt' ? [{ ...createEmailBlock('table'), rows: [{ label: 'Order', value: fields.reference }, { label: fields.item, value: fields.total }] }]
-    : template === 'newsletter' ? [{ ...createEmailBlock('text'), text: 'THE NOTEBOOK / MONTHLY EDITION', fontSize: 12, color: '#738778' }] : [];
-  const button = { ...createEmailBlock('button'), text: fields.buttonText, url: fields.link, buttonColor: fields.accent };
-  const footer = { ...createEmailBlock('text'), text: fields.footer, color: '#738778', fontSize: 12 };
-  return { subject: fields.subject, background: '#EDF2ED', font: 'Arial', blocks: [brand, heading, message, ...extras, button, createEmailBlock('divider'), footer] };
+export function createEmailDesign(template, fields, t = value => value) {
+  const brand = { ...createEmailBlock('text', t), text: fields.brand, color: fields.accent, background: '#17231E', fontSize: 15, bold: true };
+  const heading = { ...createEmailBlock('heading', t), text: fields.heading };
+  const message = { ...createEmailBlock('text', t), text: fields.message, padding: 20 };
+  const extras = template === 'receipt' ? [{ ...createEmailBlock('table', t), rows: [{ label: t('Order'), value: fields.reference }, { label: fields.item, value: fields.total }] }]
+    : template === 'newsletter' ? [{ ...createEmailBlock('text', t), text: t('THE NOTEBOOK / MONTHLY EDITION'), fontSize: 12, color: '#738778' }] : [];
+  const button = { ...createEmailBlock('button', t), text: fields.buttonText, url: fields.link, buttonColor: fields.accent };
+  const footer = { ...createEmailBlock('text', t), text: fields.footer, color: '#738778', fontSize: 12 };
+  return { subject: fields.subject, language: fields.language === 'vi' ? 'vi' : 'en', background: '#EDF2ED', font: 'Arial', blocks: [brand, heading, message, ...extras, button, createEmailBlock('divider', t), footer] };
 }
 export function moveEmailBlock(blocks, id, position) {
   const index = blocks.findIndex(block => block.id === id);
@@ -74,7 +76,7 @@ export function renderEmailDesign(design) {
       const width = numeric(block.width, 10, 100, 'Image width');
       content = `<img src="${escape(emailAssetUrl(block.src, true))}" alt="${escape(block.alt)}" width="${Math.round((600 - 2 * padding) * width / 100)}" style="display:inline-block;width:${width}%;max-width:100%;height:auto;border:0;">`;
     }
-    if (block.type === 'button') content = `<table role="presentation" cellspacing="0" cellpadding="0" align="${block.align}"><tr><td style="background:${color(block.buttonColor)};border-radius:${numeric(block.radius, 0, 32, 'Button radius')}px;"><a href="${escape(emailAssetUrl(block.url))}" style="display:inline-block;padding:14px 24px;color:${foreground};font-size:${size}px;font-weight:${block.bold ? 'bold' : 'normal'};text-decoration:none;">${text(block.text)}</a></td></tr></table>`;
+    if (block.type === 'button') content = `<table role="presentation" cellspacing="0" cellpadding="0" align="${block.align}"><tr><td style="background:${color(block.buttonColor)};border-radius:${numeric(block.radius, 0, 32, 'Button radius')}px;"><a class="email-button" href="${escape(emailAssetUrl(block.url))}" style="display:inline-block;padding:14px 24px;color:${foreground};font-size:${size}px;font-weight:${block.bold ? 'bold' : 'normal'};text-decoration:none;">${text(block.text)}</a></td></tr></table>`;
     if (block.type === 'divider') content = `<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td height="${numeric(block.thickness, 1, 8, 'Divider thickness')}" style="background:${color(block.lineColor)};font-size:0;line-height:0;">&nbsp;</td></tr></table>`;
     if (block.type === 'spacer') {
       const height = numeric(block.height, 8, 200, 'Spacer height');
@@ -88,7 +90,7 @@ export function renderEmailDesign(design) {
     return `<tr><td align="${block.align}" style="${style}">${content}</td></tr>`;
   }).join('\n');
   const html = `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escape(design.subject)}</title></head>
+<html lang="${design.language === 'vi' ? 'vi' : 'en'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escape(design.subject)}</title>${emailButtonStyles}</head>
 <body style="margin:0;padding:0;background:${color(design.background)};font-family:${design.font},${design.font === 'Georgia' ? 'serif' : 'sans-serif'};">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:${design.background};"><tr><td align="center" style="padding:24px 12px;">
 <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #dbe4db;">

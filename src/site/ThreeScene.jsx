@@ -39,6 +39,10 @@ export default function ThreeScene({ concept, section, progress = 0 }) {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const mobile = matchMedia('(max-width: 700px)');
     let disposed = false;
+    let contextAvailable = true;
+    let hovered = false;
+    let planet;
+    let lastDrawTime = null;
     let frame = 0;
     let visible = false;
     let targetX = 0.15;
@@ -48,12 +52,17 @@ export default function ThreeScene({ concept, section, progress = 0 }) {
     const slabs = [];
     let targetProgress = 0;
     let currentProgress = 0;
-    const draw = () => {
+    const draw = time => {
       frame = 0;
-      if (disposed || !visible || document.hidden) return;
+      if (disposed || !contextAvailable || !visible || document.hidden) return;
       const still = reduced.matches || mobile.matches;
-      group.rotation.x = still ? 0.15 : THREE.MathUtils.lerp(group.rotation.x, targetX, 0.12);
-      group.rotation.y = still ? -0.25 : THREE.MathUtils.lerp(group.rotation.y, targetY, 0.12);
+      const spinning = planet && !hovered && !reduced.matches;
+      if (spinning && lastDrawTime !== null) planet.rotation.y += Math.min((time - lastDrawTime) / 1000, 0.05) * 0.1;
+      lastDrawTime = time;
+      if (concept !== 'a') {
+        group.rotation.x = still ? 0.15 : THREE.MathUtils.lerp(group.rotation.x, targetX, 0.12);
+        group.rotation.y = still ? -0.25 : THREE.MathUtils.lerp(group.rotation.y, targetY, 0.12);
+      }
       if (concept === 'layers') {
         currentProgress = still ? 1 : THREE.MathUtils.lerp(currentProgress, targetProgress, 0.14);
         slabs.forEach((slab, index) => {
@@ -64,10 +73,10 @@ export default function ThreeScene({ concept, section, progress = 0 }) {
         });
       }
       renderer.render(scene, camera);
-      if (!still && (Math.abs(group.rotation.x - targetX) > 0.001 || Math.abs(group.rotation.y - targetY) > 0.001 || Math.abs(currentProgress - targetProgress) > 0.001)) invalidate();
+      if (spinning || (concept !== 'a' && !still && (Math.abs(group.rotation.x - targetX) > 0.001 || Math.abs(group.rotation.y - targetY) > 0.001 || Math.abs(currentProgress - targetProgress) > 0.001))) invalidate();
     };
     function invalidate() {
-      if (!disposed && visible && !document.hidden && !frame) frame = requestAnimationFrame(draw);
+      if (!disposed && contextAvailable && visible && !document.hidden && !frame) frame = requestAnimationFrame(draw);
     }
     scene.add(new THREE.AmbientLight(solar ? 0xffe4b0 : 0xc4d5e4, 0.65));
     const light = new THREE.DirectionalLight(solar ? 0xfff0cf : 0xffffff, solar ? 0.85 : 1.4);
@@ -79,7 +88,8 @@ export default function ThreeScene({ concept, section, progress = 0 }) {
 
     if (concept === 'a') {
       const material = new THREE.MeshStandardMaterial({ color: solar ? 0xfff3d6 : 0xc4d1db, roughness: 0.95, emissive: solar ? 0xff7a08 : 0x000000, emissiveIntensity: solar ? 0.18 : 0 });
-      addMesh(new THREE.SphereGeometry(1.55, 32, 24), material);
+      planet = addMesh(new THREE.SphereGeometry(1.55, 32, 24), material);
+      group.rotation.set(0.15, -0.25, 0);
       const texture = new THREE.TextureLoader().load(solar ? sunUrl : moonUrl, () => { if (!disposed) invalidate(); }, undefined, () => invalidate());
       texture.encoding = THREE.sRGBEncoding;
       material.map = texture;
@@ -152,24 +162,33 @@ export default function ThreeScene({ concept, section, progress = 0 }) {
       invalidate();
     };
     const pointer = event => {
-      if (reduced.matches || mobile.matches || concept === 'layers') return;
+      if (reduced.matches || mobile.matches || concept === 'layers' || concept === 'a') return;
       const bounds = element.getBoundingClientRect();
       targetX = 0.15 + (event.clientY - bounds.top - bounds.height / 2) / bounds.height * 0.12;
       targetY = -0.25 + (event.clientX - bounds.left - bounds.width / 2) / bounds.width * 0.18;
       invalidate();
     };
-    const leave = () => { targetX = concept === 'b' || concept === 'layers' ? 0.38 : 0.15; targetY = -0.25; setSection(lastSection); invalidate(); };
-    const contextLost = event => { event.preventDefault(); setUnavailable(true); cancelAnimationFrame(frame); frame = 0; };
-    const contextRestored = () => { setUnavailable(false); invalidate(); };
+    const enter = event => {
+      if (concept !== 'a' || event.pointerType === 'touch') return;
+      hovered = true; lastDrawTime = null;
+      cancelAnimationFrame(frame); frame = 0;
+    };
+    const leave = () => {
+      hovered = false; lastDrawTime = null;
+      targetX = concept === 'b' || concept === 'layers' ? 0.38 : 0.15; targetY = -0.25; setSection(lastSection); invalidate();
+    };
+    const contextLost = event => { event.preventDefault(); contextAvailable = false; setUnavailable(true); cancelAnimationFrame(frame); frame = 0; };
+    const contextRestored = () => { contextAvailable = true; lastDrawTime = null; setUnavailable(false); invalidate(); };
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(element);
     const visibilityObserver = new IntersectionObserver(entries => {
       visible = entries[0].isIntersecting;
       if (visible) invalidate();
-      else { cancelAnimationFrame(frame); frame = 0; }
+      else { cancelAnimationFrame(frame); frame = 0; lastDrawTime = null; }
     });
     visibilityObserver.observe(element);
     const pointerTarget = concept === 'c' ? window : element;
+    pointerTarget.addEventListener('pointerenter', enter);
     pointerTarget.addEventListener('pointermove', pointer, { passive: true });
     pointerTarget.addEventListener('pointerleave', leave);
     document.addEventListener('visibilitychange', invalidate);
@@ -185,6 +204,7 @@ export default function ThreeScene({ concept, section, progress = 0 }) {
       resizeObserver.disconnect();
       visibilityObserver.disconnect();
       pointerTarget.removeEventListener('pointermove', pointer);
+      pointerTarget.removeEventListener('pointerenter', enter);
       pointerTarget.removeEventListener('pointerleave', leave);
       document.removeEventListener('visibilitychange', invalidate);
       reduced.removeEventListener('change', invalidate);

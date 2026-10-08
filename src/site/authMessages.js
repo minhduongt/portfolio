@@ -1,5 +1,15 @@
 export function authErrorMessage(failure) {
   const messages = {
+    'EMAIL_EXISTS': 'This email is already registered. Sign in with your existing account.',
+    'WEAK_PASSWORD': 'Choose a stronger password that meets the account password policy.',
+    'INVALID_INPUT': 'Check your email and password and try again.',
+    'INVALID_CREDENTIALS': 'The email or password is incorrect. Try again or reset your password.',
+    'RATE_LIMITED': 'Too many attempts. Please wait a moment before trying again.',
+    'AUTH_UNAVAILABLE': 'Email/password authentication is unavailable. Try Google or contact the site administrator.',
+    'AUTH_PROVIDER_ERROR': 'The authentication service is temporarily unavailable. Please try again later.',
+    'UNAUTHORIZED': 'Your session has expired. Sign in again.',
+    'auth/email-already-in-use': 'This email is already registered. Sign in with your existing account.',
+    'auth/weak-password': 'Choose a stronger password that meets the account password policy.',
     'auth/invalid-credential': 'The email or password is incorrect. Try again, reset your password, or use Google if that is how you signed up.',
     'auth/invalid-login-credentials': 'The email or password is incorrect. Try again or reset your password.',
     'auth/wrong-password': 'The email or password is incorrect. Try again or reset your password.',

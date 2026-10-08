@@ -14,11 +14,13 @@
         document.documentElement.dataset.theme = theme;
         document.documentElement.style.colorScheme = theme;
         document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#faf7ef' : '#101716';
+        try { document.documentElement.lang = localStorage.getItem('portfolio.language') === 'vi' ? 'vi' : 'en'; } catch { document.documentElement.lang = 'en'; }
       })();
     </script>
     <meta property="og:title" content="Duong Tan Minh — Fullstack Developer" />
     <meta property="og:description" content="Thoughtful interfaces. Practical software. Power Platform, React and .NET." />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
     <title>Duong Tan Minh — Fullstack Developer</title>
     <style>
       .entry-loader { box-sizing: border-box; min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: 32px 24px; background: #101716; color: #edf1ed; font-family: "Segoe UI", Arial, sans-serif; text-align: center; }
@@ -60,6 +62,13 @@
       </div>
     </div>
     <noscript><style>.entry-loader { display: none; }</style><div class="entry-loader" style="display: grid;"><p>Please enable JavaScript to explore Minh’s portfolio.</p></div></noscript>
+    <script>
+      if (document.documentElement.lang === 'vi') {
+        document.querySelector('.entry-loader__eyebrow').textContent = 'MINH DUONG / ĐANG KHỞI ĐỘNG';
+        document.querySelector('.entry-loader__title').textContent = 'Chào mừng đến với portfolio của Minh';
+        document.querySelector('.entry-loader__caption').textContent = 'Đang tải nội dung. Mời bạn khám phá những điều mình đã xây dựng.';
+      }
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

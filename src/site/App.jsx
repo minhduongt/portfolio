@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import LoadingState from './LoadingState';
 import Portfolio from './Portfolio';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 const Pages = lazy(() => import('./Pages'));
 const LoginPage = lazy(() => import('./LoginPage'));
@@ -19,7 +20,19 @@ function route() {
 }
 
 export default function App() {
+  const { language, t } = useLanguage();
   const [current, setCurrent] = useState(route);
+  useEffect(() => {
+    document.querySelector('meta[name="description"]')?.setAttribute('content', t('common.metadata.description'));
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', t('common.metadata.social'));
+    document.querySelector('meta[property="og:locale"]')?.setAttribute('content', language === 'vi' ? 'vi_VN' : 'en_US');
+    const updateTitle = () => document.querySelector('meta[property="og:title"]')?.setAttribute('content', document.title);
+    updateTitle();
+    const observer = new MutationObserver(updateTitle);
+    const title = document.querySelector('title');
+    if (title) observer.observe(title, { childList: true, subtree: true, characterData: true });
+    return () => observer.disconnect();
+  }, [language, t]);
   useEffect(() => {
     const change = () => setCurrent(route());
     const navigate = event => {
@@ -55,5 +68,5 @@ export default function App() {
     }
     if (location.hash) history.replaceState(null, '', `${location.pathname}${location.search}`);
   }, [current.page, current.postSlug]);
-  return current.page === 'portfolio' ? <Portfolio /> : <Suspense fallback={<LoadingState label="Preparing your next view" fullPage />}>{current.page === 'login' ? <LoginPage /> : current.page === 'admin' ? <AdminPage /> : <Pages page={current.page} postSlug={current.postSlug} />}</Suspense>;
+  return current.page === 'portfolio' ? <Portfolio /> : <Suspense fallback={<LoadingState label={t('Preparing your next view')} fullPage />}>{current.page === 'login' ? <LoginPage /> : current.page === 'admin' ? <AdminPage /> : <Pages page={current.page} postSlug={current.postSlug} />}</Suspense>;
 }

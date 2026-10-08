@@ -10,7 +10,10 @@ try {
  await page.waitForTimeout(850);
  assert.equal(await page.locator('.hero-copy h1').evaluate(e=>getComputedStyle(e).opacity),'1');
  const work=page.locator('.site-links a[href="#work"]');await work.hover();await page.waitForTimeout(350);
- assert.equal(await work.evaluate(e=>getComputedStyle(e,'::after').transform),'matrix(1, 0, 0, 1, 0, 0)');
+ assert.equal(await work.locator('.nav-orbit').count(),1,'Navigation uses the orbital treatment');
+ assert.equal(await work.locator('.nav-orbit-outline').evaluate(e=>getComputedStyle(e).strokeDashoffset),'0px');
+ assert.equal(await work.locator('.nav-orbit-trace').evaluate(e=>getComputedStyle(e).animationPlayState),'running');
+ await page.locator('.site-nav').screenshot({path:'.tmp/screenshots/nav-orbital-desktop.png'});
  await work.click();await page.waitForTimeout(1000);
  assert(await page.locator('.site-nav').evaluate(e=>e.classList.contains('is-scrolled')));
  assert(Math.abs(await page.locator('.site-nav').evaluate(e=>e.getBoundingClientRect().top))<2);
@@ -31,6 +34,7 @@ try {
  await page.setViewportSize({width:390,height:844});await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.getByRole('button',{name:'Menu',exact:true}).click();await page.waitForTimeout(400);
  await page.screenshot({path:'.tmp/screenshots/nav-mobile-motion.png'});
  await page.emulateMedia({reducedMotion:'reduce'});
+ assert.equal(await page.locator('.nav-orbit-trace').first().evaluate(e=>getComputedStyle(e).animationName),'none');
  assert.equal(await page.locator('.project').last().evaluate(e=>getComputedStyle(e).opacity),'1');
  assert.equal(await page.locator('.motion-entry').first().evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
  await page.goto(base+'#/login');await page.getByLabel('Email',{exact:true}).waitFor();

@@ -33,21 +33,100 @@ try {
     if(kind==='tool'){
      await page.getByRole('button',{name:'Tools management',exact:true}).click();
      await page.getByRole('button',{name:'Edit public article',exact:true}).click();
+     assert.equal(await page.locator('.admin-list').count(),0,'Editing replaces the management list');
      const components=page.locator('.admin-editor').getByLabel('Tool component');
      assert.equal(await components.inputValue(),'json-formatter');
      assert(!(await components.locator('option').evaluateAll(items=>items.map(e=>e.value))).includes('url-encoder-decoder'));
      await page.getByRole('button',{name:'Cancel editing',exact:true}).click();
+     assert(await page.locator('.admin-list').isVisible(),'Cancel restores the management list');
     }
+    assert.equal(await page.locator('.admin-editor').count(),0,'Management initially shows only the list');
     await page.getByRole('button',{name:'New '+kind,exact:true}).click();const editor=page.locator('.admin-editor');
+    assert.equal(await page.locator('.admin-list').count(),0,'Creating replaces the management list');
+    assert.equal(await page.getByRole('button',{name:'New '+kind,exact:true}).count(),0,'List actions are hidden while creating');
+    await page.getByRole('button',{name:'Cancel editing',exact:true}).click();
+    assert.equal(await editor.count(),0,'Cancel closes the create form');
+    assert(await page.locator('.admin-list').isVisible(),'Cancel creating restores the management list');
+    await page.getByRole('button',{name:'New '+kind,exact:true}).click();
     await editor.getByLabel('Visibility').waitFor();assert.deepEqual(await editor.getByLabel('Visibility').locator('option').evaluateAll(items=>items.map(e=>e.value)),['public','limited','private']);
+    if(kind==='blog'){
+     const content=editor.getByRole('textbox',{name:'Blog Content',exact:true});
+     assert.equal(await content.getAttribute('contenteditable'),'true','Blogs use a rich text editor');
+     await content.fill('Formatted content');
+     await content.press('Control+a');
+     await editor.getByRole('button',{name:'Bold',exact:true}).click();
+     assert.equal(await content.locator('b, strong').innerText(),'Formatted content','Toolbar formats selected text');
+     await content.press('Control+z');
+     assert.equal(await content.locator('b, strong').count(),0,'Native undo reverses toolbar formatting');
+     await content.press('Control+a');
+     await editor.getByRole('button',{name:'Bold',exact:true}).click();
+     await editor.getByRole('button',{name:'Italic',exact:true}).click();
+     assert.equal(await content.locator('i, em').innerText(),'Formatted content');
+     await editor.getByRole('button',{name:'Add link',exact:true}).click();
+     await editor.getByLabel('Link URL',{exact:true}).fill('javascript:alert(1)');
+     await editor.getByRole('button',{name:'Insert link',exact:true}).click();
+     await editor.getByRole('alert').filter({hasText:'HTTP'}).waitFor();
+     await editor.getByLabel('Link URL',{exact:true}).fill('https://example.org/article');
+     await editor.getByRole('button',{name:'Insert link',exact:true}).click();
+     assert.equal(await content.locator('a').getAttribute('href'),'https://example.org/article');
+     await content.focus();await content.press('Control+a');
+     await editor.getByRole('button',{name:'Remove link',exact:true}).click();
+     assert.equal(await content.locator('a').count(),0);
+     await editor.getByRole('button',{name:'Bulleted list',exact:true}).click();
+     assert.equal(await content.locator('ul li').innerText(),'Formatted content');
+     await editor.getByRole('button',{name:'Numbered list',exact:true}).click();
+     assert.equal(await content.locator('ol li').innerText(),'Formatted content');
+     await editor.getByRole('button',{name:'Numbered list',exact:true}).click();
+     await editor.getByLabel('Text style',{exact:true}).selectOption('h2');
+     assert.equal(await content.locator('h2').innerText(),'Formatted content');
+     await content.focus();await content.press('Control+a');
+     await content.evaluate(element=>{
+      const data=new DataTransfer();data.setData('text/plain','<div><h2>Pasted HTML heading</h2><p><strong>Pasted bold</strong></p><script>window.injected=true</script></div>');
+      element.dispatchEvent(new ClipboardEvent('paste',{bubbles:true,cancelable:true,clipboardData:data}));
+     });
+     assert.equal(await content.getByRole('heading',{name:'Pasted HTML heading',exact:true}).innerText(),'Pasted HTML heading','Plain-text HTML source pastes as formatted content');
+     assert.equal(await content.locator('strong').innerText(),'Pasted bold');
+     assert.equal(await page.evaluate(()=>window.injected),undefined);
+     await content.focus();await content.press('Control+a');
+     await content.evaluate(element=>{
+      const data=new DataTransfer();data.setData('text/html','<p><strong>Formatted content</strong></p><img src=x onerror="window.injected=true"><script>window.injected=true</script>');
+      element.dispatchEvent(new ClipboardEvent('paste',{bubbles:true,cancelable:true,clipboardData:data}));
+     });
+     assert.equal(await content.locator('strong').innerText(),'Formatted content','Rich paste preserves safe formatting');
+     assert.equal(await content.locator('img, script').count(),0,'Pasted HTML is sanitized before insertion');
+     assert.equal(await page.evaluate(()=>window.injected),undefined);
+     await editor.getByRole('button',{name:'HTML source',exact:true}).click();
+     const source=editor.getByRole('textbox',{name:'Blog Content',exact:true});
+     assert((await source.inputValue()).includes('Formatted content'),'HTML source contains rich formatting');
+     await source.fill('<h2>Members content</h2><p><strong>Saved bold</strong></p><ul><li>First item</li></ul><img src=x onerror="window.injected=true"><script>window.injected=true</script>');
+     await editor.getByRole('button',{name:'Rich text',exact:true}).click();
+     assert.equal(await content.locator('h2').innerText(),'Members content');
+     assert.equal(await content.locator('script, img').count(),0,'Unsafe source never enters the editable DOM');
+     assert.equal(await page.evaluate(()=>window.injected),undefined);
+     await editor.getByLabel('Title',{exact:true}).fill('Original bilingual draft');
+     await page.locator('.language-switcher button[lang="vi"]').click();
+     assert.equal(await editor.locator('input').nth(1).inputValue(),'Original bilingual draft','Language change preserves admin fields');
+     assert((await editor.locator('[contenteditable]').innerText()).includes('Saved bold'),'Language change preserves rich text');
+     assert((await editor.innerText()).includes('Lưu nội dung'),'Admin editor is localized');
+     await page.locator('.language-switcher button[lang="en"]').click();
+     for(const width of [320,390,1440]){
+      await page.setViewportSize({width,height:950});
+      assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Rich text toolbar fits mobile widths');
+     }
+    }
     if(kind==='tool'){
      const components=editor.getByLabel('Tool component');
      const options=await components.locator('option').evaluateAll(items=>items.map(e=>e.value));
      assert(!options.includes('json-formatter'));assert(!options.includes('url-encoder-decoder'));
      assert.equal(await components.inputValue(),'word-counter');
     }
-    await editor.getByLabel('Slug',{exact:true}).fill('members-'+kind);await editor.getByLabel(kind==='blog'?'Title':'Tool name',{exact:true}).fill('Members content');await editor.getByLabel(kind==='blog'?'Blog HTML':'Description',{exact:true}).fill(kind==='blog'?'<p>Members content</p>':'Members content');await editor.getByLabel('Visibility').selectOption('limited');await editor.getByRole('button',{name:'Save content',exact:true}).click();await page.getByRole('status').filter({hasText:'Changes saved'}).waitFor();
+    await editor.getByLabel('Slug',{exact:true}).fill('members-'+kind);await editor.getByLabel(kind==='blog'?'Title':'Tool name',{exact:true}).fill('Members content');if(kind==='tool')await editor.getByLabel('Description',{exact:true}).fill('Members content');await editor.getByLabel('Visibility').selectOption('limited');await editor.getByRole('button',{name:'Save content',exact:true}).click();await page.getByRole('status').filter({hasText:'Changes saved'}).waitFor();
+    assert.equal(await editor.count(),0,'Saving closes the editor');
+    assert(await page.locator('.admin-list').isVisible(),'Saving restores the management list');
    }assert.equal(writes.length,2);assert(writes.every(body=>body.visibility==='limited'));assert.equal(writes[1].component,'word-counter');
+   assert(writes[0].contentHtml.includes('<h2>Members content</h2>'),'Saving preserves formatted HTML');
+   assert(writes[0].contentHtml.includes('<strong>Saved bold</strong>'));
+   assert(!writes[0].contentHtml.includes('<script>'));
    allTools=true;await page.getByRole('button',{name:'Reload list',exact:true}).click();
    await page.getByText('All tool components already exist.',{exact:false}).waitFor();
    assert(await page.getByRole('button',{name:'New tool',exact:true}).isDisabled());
