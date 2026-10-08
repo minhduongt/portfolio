@@ -13,7 +13,7 @@ try {
    const req=route.request(),url=new URL(req.url()),signedIn=!!req.headers().authorization;
    if(url.pathname.endsWith('/auth/me'))return route.fulfill({json:{success:true,data:{uid:role,role:role==='admin'?'admin':'user'}}});
    if(req.method()==='POST'){writes.push(req.postDataJSON());return route.fulfill({status:201,json:{success:true,data:req.postDataJSON()}})}
-   const items=['public','limited','private'].filter(v=>v==='public'||signedIn&&(v==='limited'||role==='admin')).map(visibility=>({slug:visibility,visibility,title:visibility+' article',name:visibility+' tool',excerpt:'Example',description:'Example',contentHtml:'<p>Example</p>',component:'json-formatter',tags:[]}));
+   const items=['public','limited','private'].filter(v=>v==='public'||url.pathname.endsWith('/tools')&&v==='limited'||signedIn&&(v==='limited'||role==='admin')).map(visibility=>({slug:visibility,visibility,title:visibility+' article',name:visibility+' tool',excerpt:'Example',description:'Example',contentHtml:'<p>Example</p>',component:'json-formatter',tags:[]}));
    if(url.pathname.endsWith('/tools') && url.searchParams.has('includeArchived')){
     if(allTools)return route.fulfill({json:{success:true,data:Object.keys(componentKeys).map(component=>({slug:component,name:component,component,visibility:'public'}))}});
     items.push({slug:'archived-url',name:'Archived URL tool',component:'url-encoder-decoder',visibility:'private',archivedAt:'2026-01-01'});
@@ -22,11 +22,18 @@ try {
   });
   await page.goto(base+'#/blogs');await page.getByRole('link',{name:'public article',exact:false}).waitFor();assert.equal(await page.getByRole('link',{name:'limited article',exact:false}).count(),0);assert(await page.locator('.content-access-note').isVisible());
   assert.equal(await page.locator('.visibility-badge').count(),0,'Guests do not see visibility badges');
+  await page.goto(base+'#/tools');await page.getByRole('button',{name:'limited tool',exact:true}).click();
+  assert.equal(await page.locator('.tool-editor-grid').count(),0,'Guest cannot mount a members-only tool');
+  assert(await page.locator('.tool-access-lock').isVisible());
+  assert.equal(await page.locator('.visibility-badge--limited').innerText(),'Members');
+  assert.equal(await page.getByRole('button',{name:'private tool',exact:true}).count(),0);
   await page.goto(base+'#/login');await page.getByLabel('Email',{exact:true}).fill(`${role}@example.com`);await page.getByLabel('Password',{exact:true}).fill('fixture-password');await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.getByRole('button',{name:'Sign out',exact:true}).waitFor();
   await page.goto(base+'#/blogs');await page.getByRole('link',{name:'limited article',exact:false}).waitFor();assert.equal(await page.getByRole('link',{name:'private article',exact:false}).count(),role==='admin'?1:0);assert.equal(await page.locator('.content-access-note').count(),0);
   assert.equal(await page.locator('.visibility-badge').count(),role==='admin'?3:0,'Only administrators see blog visibility badges');
   await page.goto(base+'#/tools');await page.getByRole('button',{name:'limited tool',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'private tool',exact:true}).count(),role==='admin'?1:0);
-  assert.equal(await page.locator('.visibility-badge').count(),role==='admin'?3:0,'Only administrators see tool visibility badges');
+  assert.equal(await page.locator('.visibility-badge').count(),role==='admin'?3:1,'Members-only tools show their access level');
+  await page.getByRole('button',{name:'limited tool',exact:true}).click();
+  assert(await page.locator('.tool-editor-grid').isVisible(),'Signed-in members can use the tool');
   if(role==='admin'){
    await page.goto(base+'#/admin');
    for(const kind of ['blog','tool']){

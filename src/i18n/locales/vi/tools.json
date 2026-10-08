@@ -1,5 +1,8 @@
 {
   "messages": {
+    "Members-only tool": "Công cụ dành cho thành viên",
+    "Sign in to use this tool. Public tools are available without an account.": "Đăng nhập để sử dụng công cụ này. Các công cụ công khai không yêu cầu tài khoản.",
+    "Sign in to use this tool": "Đăng nhập để sử dụng",
     "THE NOTEBOOK / SAMPLE DRAFTS": "GHI CHÉP / BẢN NHÁP MẪU",
     "Notes from the build": "Ghi chép từ quá trình phát triển",
     "Ideas, decisions and lessons from making useful software.": "Ý tưởng, quyết định kỹ thuật và bài học từ những sản phẩm đã xây dựng.",

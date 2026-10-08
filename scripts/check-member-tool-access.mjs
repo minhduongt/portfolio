@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
+const require = createRequire(new URL('../../portfolio-be/package.json', import.meta.url));
+const { createFakeFirestore } = require('./test/helpers/fakeFirestore');
+let createContentService;
+if (process.env.CANDIDATE_SERVICE) {
+  const module = { exports: {} };
+  new Function('require', 'module', 'exports', readFileSync(process.env.CANDIDATE_SERVICE, 'utf8'))(createRequire(new URL('../../portfolio-be/src/services/contentService.js', import.meta.url)), module, module.exports);
+  ({ createContentService } = module.exports);
+} else ({ createContentService } = require('./src/services/contentService'));
+const member = { slug:'member',name:'Member tool',description:'Useful utility',category:'Utility',visibility:'limited',component:'url-encoder-decoder',config:{secret:'member-only'},sortOrder:1,createdBy:'owner',archivedAt:null };
+const fake = createFakeFirestore({ 'tools/public':{...member,slug:'public',visibility:'public',sortOrder:0},'tools/member':member,'tools/private':{...member,slug:'private',visibility:'private'},'tools/archived':{...member,slug:'archived',archivedAt:123} });
+const service = createContentService({collectionRef:fake.db.collection('tools'),kind:'tool',fieldValue:fake.fieldValue});
+const guest = await service.list();
+assert.deepEqual(guest.map(item=>item.slug),['public','member']);
+assert.deepEqual(guest[1],{slug:'member',name:'Member tool',description:'Useful utility',category:'Utility',visibility:'limited',sortOrder:1,locked:true});
+for(const slug of ['member','private','archived']) await assert.rejects(service.getBySlug(slug),error=>error.status===404);
+assert.equal((await service.getBySlug('member',{isAuthenticated:true})).component,'url-encoder-decoder');
+assert.equal((await service.list({isAuthenticated:true}))[1].config.secret,'member-only');
+assert.equal((await service.list({isAdmin:true,includeArchived:true})).length,4);
+const blogs = createContentService({collectionRef:createFakeFirestore({'blogs/member':{slug:'member',visibility:'limited'}}).db.collection('blogs'),kind:'blog'});
+assert.deepEqual(await blogs.list(),[]);
+console.log('PASS: guest tool previews contain metadata only; member details, private/archived tools and blogs remain protected.');

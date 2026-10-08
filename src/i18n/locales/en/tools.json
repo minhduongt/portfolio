@@ -1,5 +1,8 @@
 {
   "messages": {
+    "Members-only tool": "Members-only tool",
+    "Sign in to use this tool. Public tools are available without an account.": "Sign in to use this tool. Public tools are available without an account.",
+    "Sign in to use this tool": "Sign in to use this tool",
     "THE NOTEBOOK / SAMPLE DRAFTS": "THE NOTEBOOK / SAMPLE DRAFTS",
     "Notes from the build": "Notes from the build",
     "Ideas, decisions and lessons from making useful software.": "Ideas, decisions and lessons from making useful software.",

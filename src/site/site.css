@@ -338,7 +338,11 @@ details[open] summary span { transform: rotate(45deg); }
 .tool-picker button small { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; }
 .tool-picker button > span:last-child { margin-left: auto; }
 .picker-icon { font: 16px Consolas, monospace; width: 22px; flex-shrink: 0; color: var(--accent); }
-.portfolio section.tool-workspace { padding-block: 20px 30px; }
+.tool-lock-icon { display: block; width: 22px; height: 22px; color: var(--accent); flex-shrink: 0; }
+.tool-lock-message { padding-block: 30px; border-top: 1px solid var(--border); }
+.tool-lock-message h3 { font-size: 22px; font-weight: 450; }
+.tool-lock-message p { color: var(--muted); line-height: 1.7; margin: 14px 0 24px; }
+.portfolio section.tool-workspace { padding: 24px clamp(16px, 2vw, 24px) 30px; }
 .workspace-heading { display: flex; gap: 20px; justify-content: space-between; margin-bottom: 30px; }
 .workspace-heading h2 { font-size: 28px; font-weight: 450; letter-spacing: -.7px; margin: 12px 0; }
 .workspace-heading p { color: var(--muted); font-size: 13px; line-height: 1.8; max-width: 440px; margin: 0; }
@@ -352,7 +356,8 @@ details[open] summary span { transform: rotate(45deg); }
 .tool-editor-grid textarea { background: #0c1310; border: 1px solid var(--border); width: 100%; min-height: 310px; padding: 18px; font: 12px/1.9 Consolas, monospace; color: var(--text); resize: vertical; border-radius: 3px; }
 .tool-editor-grid textarea::placeholder, .search-field input::placeholder { color: #899c91; }
 .single-editor { grid-template-columns: 1fr; }
-.tool-run-actions { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-top: 20px; }
+.tool-run-actions { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-block: 20px 24px; }
+.tool-workspace :is(.developer-controls, .utility-field, .character-groups) + .tool-run-actions { margin-top: 0; }
 .tool-run-actions button { cursor: pointer; border: 0; font-family: inherit; }
 .tool-run-actions .copy-button { margin-left: auto; border: 1px solid var(--border); }
 button.button-secondary { padding-inline: 19px; background: transparent; border: 1px solid var(--border); border-radius: 3px; }
