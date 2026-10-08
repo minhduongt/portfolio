@@ -5,6 +5,7 @@ import LoadingState from './LoadingState';
 import VisibilityBadge from './VisibilityBadge';
 import SiteNavigation, { siteLink, SiteFooter } from './SiteNavigation';
 import { posts, tools } from './data';
+import { useAgentPage } from './agent/AgentBridge';
 
 const AdditionalTools = lazy(() => import('./tools/AdditionalTools'));
 const DeveloperTools = lazy(() => import('./tools/DeveloperTools'));
@@ -96,6 +97,12 @@ export function Tools({ items = tools }) {
   const [selected, setSelected] = useState('');
   const [search, setSearch] = useState('');
   const filtered = items.filter(item => `${item.name} ${item.category} ${t(item.name)} ${t(item.category)}`.toLowerCase().includes(search.toLowerCase()));
+  useAgentPage({ page: 'tools', context: { route: '/tools' }, execute(action, beforeApply) {
+    const item = items.find(item => item.slug === action.slug && item.visibility === 'public' && item.archivedAt == null && !item.locked && !item.isArchived && item.id);
+    if (action.type !== 'open_tool' || !item) return false;
+    beforeApply?.();
+    setSearch(''); setSelected(item.slug); return true;
+  } });
   const key = item => item.slug || item.id;
   const tool = items.find(item => key(item) === selected) || items[0];
   const isLocked = item => item.locked === true || (item.visibility === 'limited' && !user);

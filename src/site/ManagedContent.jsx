@@ -8,6 +8,7 @@ import SafeHtml from './SafeHtml';
 import VisibilityBadge from './VisibilityBadge';
 import BlogMetadata from './BlogMetadata';
 import { useLanguage } from '../i18n/LanguageProvider';
+import { useAgentPage } from './agent/AgentBridge';
 
 export default function ManagedContent({ page, postSlug }) {
   const { t } = useLanguage();
@@ -16,6 +17,7 @@ export default function ManagedContent({ page, postSlug }) {
   const [search, setSearch] = useState(''), [tag, setTag] = useState('All');
   const path = `/${page}${page === 'blogs' && postSlug ? `/${encodeURIComponent(postSlug)}` : ''}`;
   const owner = `${user?.uid || 'anonymous'}:${isAdmin}:${path}`;
+  useAgentPage(page === 'blogs' ? { page: 'blogs', context: { route: state.owner === owner && postSlug && state.data?.visibility === 'public' ? path : '/blogs' }, execute: () => false } : null);
   useEffect(() => {
     const controller = new AbortController(); setState({});
     if (!loading) requestApi(path, { user, signal: controller.signal }).then(data => {

@@ -13,6 +13,8 @@ export const profile = {
   about: "A fullstack developer at Mi-Jack Vietnam, focused on Power Platform, Power Apps, Power Automate, React and .NET. My experience spans ERP systems, web builders and company workflows, alongside personal projects for interactive learning and study communities. I enjoy turning complex requirements into dependable, understandable products.",
 };
 
+export const education = { school: 'FPT University — HCM City', description: 'Software Engineering · 2019–2023' };
+
 export const projects = [
   {
     name: "RE:SEARCH",

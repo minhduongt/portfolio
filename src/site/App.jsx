@@ -1,7 +1,9 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import LoadingState from './LoadingState';
 import Portfolio from './Portfolio';
 import { useLanguage } from '../i18n/LanguageProvider';
+import { AgentBridge } from './agent/AgentBridge';
+import AgentWidget from './agent/AgentWidget';
 
 const Pages = lazy(() => import('./Pages'));
 const LoginPage = lazy(() => import('./LoginPage'));
@@ -22,6 +24,10 @@ function route() {
 export default function App() {
   const { language, t } = useLanguage();
   const [current, setCurrent] = useState(route);
+  const agentNavigate = useCallback(path => {
+    history.pushState(null, '', `${import.meta.env.BASE_URL}${path.slice(1)}`);
+    setCurrent(route());
+  }, []);
   useEffect(() => {
     document.querySelector('meta[name="description"]')?.setAttribute('content', t('common.metadata.description'));
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', t('common.metadata.social'));
@@ -48,7 +54,7 @@ export default function App() {
       const path = url.pathname.slice(import.meta.env.BASE_URL.length).replace(/\/$/u, '');
       if (path && !/^(blogs(?:\/[^/]+)?|tools|login|admin)$/u.test(path)) return;
       event.preventDefault();
-      history.pushState(null, '', url.pathname);
+      history.pushState(null, '', `${url.pathname}${url.hash}`);
       change();
     };
     addEventListener('popstate', change);
@@ -68,5 +74,5 @@ export default function App() {
     }
     if (location.hash) history.replaceState(null, '', `${location.pathname}${location.search}`);
   }, [current.page, current.postSlug]);
-  return current.page === 'portfolio' ? <Portfolio /> : <Suspense fallback={<LoadingState label={t('Preparing your next view')} fullPage />}>{current.page === 'login' ? <LoginPage /> : current.page === 'admin' ? <AdminPage /> : <Pages page={current.page} postSlug={current.postSlug} />}</Suspense>;
+  return <AgentBridge navigate={agentNavigate} page={current.page}>{current.page === 'portfolio' ? <Portfolio /> : <Suspense fallback={<LoadingState label={t('Preparing your next view')} fullPage />}>{current.page === 'login' ? <LoginPage /> : current.page === 'admin' ? <AdminPage /> : <Pages page={current.page} postSlug={current.postSlug} />}</Suspense>}<AgentWidget /></AgentBridge>;
 }

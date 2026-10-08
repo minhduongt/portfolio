@@ -3,12 +3,14 @@ import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import useSectionMotion from './useSectionMotion';
 import useGalaxyCamera from './useGalaxyCamera';
 import ContactForm from './ContactForm';
-import { achievements, capabilities, experience, profile, projects } from './content';
+import { achievements, capabilities, education, experience, profile, projects } from './content';
 import SiteNavigation, { SiteFooter } from './SiteNavigation';
 import QuoteRotator from './QuoteRotator';
 import LayerStory from './LayerStory';
 import ProductPreview from './ProductPreview';
 import { useTheme } from './ThemeProvider';
+import { useAgentPage } from './agent/AgentBridge';
+import { projectId } from './agent/protocol';
 const ThreeScene = lazy(() => import('./ThreeScene'));
 
 function SectionHeading({ number, eyebrow, title }) {
@@ -45,6 +47,18 @@ export default function Portfolio({ concept = "mix" }) {
   useGalaxyCamera(rootRef, theme);
   const [activeSection, setActiveSection] = useState('home');
   const [previewProject, setPreviewProject] = useState(null);
+  useAgentPage({ page: 'portfolio', context: { route: '/', sectionId: activeSection, ...(previewProject ? { projectId: projectId(previewProject) } : {}) }, execute(action, beforeApply) {
+    if (action.type === 'open_project') {
+      const project = projects.find(item => projectId(item) === action.projectId);
+      if (!project?.url) return false;
+      beforeApply?.();
+      setPreviewProject(project); return true;
+    }
+    const section = document.getElementById(action.sectionId);
+    if (!section) return false;
+    beforeApply?.();
+    section.setAttribute('tabindex', '-1'); section.focus({ preventScroll: true }); section.scrollIntoView(); return true;
+  } });
   useEffect(() => {
     const visibleSections = new Map();
     const observer = new IntersectionObserver(entries => {
@@ -83,7 +97,7 @@ export default function Portfolio({ concept = "mix" }) {
       </section>
       <section className="about-section content-width" id="about" data-section>
         <SectionHeading number="01" eyebrow="About" title="Built with care. Always learning." />
-        <div className="about-body"><p className="about-intro">{t(profile.about)}</p><div className="about-facts"><p><span>{t("Focus")}</span>{t("Web applications · Product interfaces")}</p><p><span>{t("Education")}</span>{t("FPT University — HCM City")}<br />{t("Software Engineering · 2019–2023")}</p><p><span>{t("Communication")}</span>{t("English · Upper Intermediate")}</p></div></div>
+        <div className="about-body"><p className="about-intro">{t(profile.about)}</p><div className="about-facts"><p><span>{t("Focus")}</span>{t("Web applications · Product interfaces")}</p><p><span>{t("Education")}</span>{t(education.school)}<br />{t(education.description)}</p><p><span>{t("Communication")}</span>{t("English · Upper Intermediate")}</p></div></div>
       </section>
       {concept === 'mix' && <LayerStory />}
       <section className="work-section content-width" id="work" data-section>

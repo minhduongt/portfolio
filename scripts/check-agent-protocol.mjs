@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import { validateAction, boundedHistory, readReply } from '../src/site/agent/protocol.js';
+
+assert.deepEqual(validateAction({ type: 'navigate', path: '/#contact', sectionId: 'contact' }), { type: 'navigate', path: '/#contact', sectionId: 'contact' });
+assert.equal(validateAction({ type: 'navigate', path: '/#skills', sectionId: 'skills' }), null);
+assert.equal(validateAction({ type: 'navigate', path: '//evil.test' }), null);
+assert.equal(validateAction({ type: 'navigate', path: '/blogs/private' }), null);
+assert.equal(validateAction({ type: 'open_project', projectId: 'missing', path: '/#work' }), null);
+assert.ok(validateAction({ type: 'open_project', projectId: 're-search', path: '/#work' }));
+assert.equal(validateAction({ type: 'change_language', language: 'vi', code: 'evil' }), null);
+assert.ok(validateAction({ type: 'change_language', language: 'vi' }));
+assert.equal(validateAction({ type: 'open_external_link', linkId: 'github', url: 'https://evil.test', requiresConfirmation: true }), null);
+assert.equal(validateAction({ type: 'open_tool', slug: '../secret', path: '/tools' }), null);
+const pairs = Array.from({ length: 9 }, () => [{ role: 'user', content: 'a'.repeat(2000) }, { role: 'assistant', content: 'b'.repeat(3000) }]).flat();
+const history = boundedHistory(pairs, 'c'.repeat(2000));
+assert.equal(history.length % 2, 0);
+assert.ok(history.length <= 10);
+assert.ok(history.reduce((n, item) => n + item.content.length, 2000) <= 12000);
+assert.ok(history.every(item => Object.keys(item).length === 2 && item.content.length <= 2000));
+assert.throws(() => readReply({ reply: '' }));
+assert.throws(() => readReply({ reply: 'a'.repeat(16001) }));
+assert.equal(readReply({ reply: '<script>evil()</script>', actions: [{ type: 'execute' }] }).actions.length, 0);
+console.log('Agent action allowlist, unsafe output rejection and bounded paired history passed.');

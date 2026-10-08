@@ -23,7 +23,10 @@ export async function requestApi(path, { user, method = 'GET', body, signal, cac
     }
     if (!response.ok || result.success !== true) {
       const error = new Error(result.message || `Request failed (${response.status}).`);
-      error.status = response.status; error.code = result.code; throw error;
+      error.status = response.status; error.code = result.code;
+      const retryAfter = Number(response.headers.get('Retry-After'));
+      if (Number.isFinite(retryAfter) && retryAfter > 0) error.retryAfter = Math.min(retryAfter, 86400);
+      throw error;
     }
     return result.data;
   };

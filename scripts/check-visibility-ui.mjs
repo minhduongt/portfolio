@@ -129,7 +129,8 @@ try {
     }
     await editor.getByLabel('Slug',{exact:true}).fill('members-'+kind);await editor.getByLabel(kind==='blog'?'Title':'Tool name',{exact:true}).fill('Members content');if(kind==='tool')await editor.getByLabel('Description',{exact:true}).fill('Members content');await editor.getByLabel('Visibility').selectOption('limited');await editor.getByRole('button',{name:'Save content',exact:true}).click();await page.getByRole('status').filter({hasText:'Changes saved'}).waitFor();
     assert.equal(await editor.count(),0,'Saving closes the editor');
-    assert(await page.locator('.admin-list').isVisible(),'Saving restores the management list');
+    await page.locator('.admin-list').waitFor({ state: 'visible' });
+    assert(await page.locator('.admin-list').isVisible(),'Saving restores the management list after reload');
    }assert.equal(writes.length,2);assert(writes.every(body=>body.visibility==='limited'));assert.equal(writes[1].component,'word-counter');
    assert(writes[0].contentHtml.includes('<h2>Members content</h2>'),'Saving preserves formatted HTML');
    assert(writes[0].contentHtml.includes('<strong>Saved bold</strong>'));
