@@ -44,11 +44,13 @@ export default function SiteNavigation({ concept, page = 'portfolio', activeSect
   }, [menuOpen]);
   const session = useSession();
   const mixed = concept === 'mix';
+  const navActions = <div className="nav-actions"><LanguageSwitcher /><ThemeToggle /><a className="resume-link desktop-resume-link" href={resume} download="DuongTanMinh_CV.pdf" aria-label={t('Download CV')}>CV <span aria-hidden="true">↓</span></a></div>;
   return <nav ref={navRef} className={`site-nav${scrolled ? ' is-scrolled' : ''}${menuOpen ? ' menu-is-open' : ''}`} aria-label={t('Main navigation')}>
     <a className="wordmark" href={page === 'portfolio' ? '#home' : siteLink()}>
       md<span className="wordmark-dot">.</span><span className="wordmark-name">Minh Duong</span>
     </a>
-    <button ref={menuRef} className="menu-button" aria-expanded={menuOpen} aria-controls="site-links" onClick={() => setMenuOpen(!menuOpen)}><span className="menu-orbit" aria-hidden="true"><span /><span /></span>{t(menuOpen ? 'Close' : 'Menu')}</button>
+    {mobile && navActions}
+    <button ref={menuRef} className="menu-button" aria-label={t(menuOpen ? 'Close' : 'Menu')} aria-expanded={menuOpen} aria-controls="site-links" onClick={() => setMenuOpen(!menuOpen)}><span className="menu-orbit" aria-hidden="true"><span /><span /></span><span className="menu-label">{t(menuOpen ? 'Close' : 'Menu')}</span></button>
     <div className={`nav-menu${menuOpen ? ' is-open' : ''}`} inert={mobile && !menuOpen ? '' : undefined}>
     <div id="site-links" className={`site-links ${menuOpen ? 'is-open' : ''}`}>
       <div className="nav-group nav-group--portfolio" role="group" aria-label={t('Portfolio')}><span className="nav-group-label" aria-hidden="true">{t('PORTFOLIO')}</span>
@@ -58,9 +60,10 @@ export default function SiteNavigation({ concept, page = 'portfolio', activeSect
       {mixed && <div className="nav-group nav-group--explore" role="group" aria-label={t('Explore')}><span className="nav-group-label" aria-hidden="true">{t('EXPLORE')}</span>{['blogs', 'tools'].map(destination => <a key={destination} href={siteLink(destination)} aria-current={page === destination ? 'page' : undefined} onClick={() => setMenuOpen(false)}><NavigationLabel>{t(destination === 'blogs' ? 'Blogs' : 'Tools')}</NavigationLabel></a>)}
       {mixed && !location.pathname.includes('design-preview') && <a href={siteLink(session.isAdmin ? 'admin' : 'login')} aria-current={['admin', 'login'].includes(page) ? 'page' : undefined} onClick={() => setMenuOpen(false)}><NavigationLabel>{t(session.isAdmin ? 'Admin' : session.user ? 'Account' : 'Sign in')}</NavigationLabel></a>}
       </div>}
+      {mobile && <div className="mobile-menu-footer"><a className="resume-link mobile-resume-link" href={resume} download="DuongTanMinh_CV.pdf" onClick={() => setMenuOpen(false)}>{t('Download CV')} <span aria-hidden="true">↓</span></a></div>}
     </div>
     </div>
-    <div className="nav-actions"><LanguageSwitcher /><ThemeToggle /><a className="resume-link" href={resume} download="DuongTanMinh_CV.pdf" aria-label={t('Download CV')}>CV <span aria-hidden="true">↓</span></a></div>
+    {!mobile && navActions}
   </nav>;
 }
 

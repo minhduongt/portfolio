@@ -79,4 +79,14 @@ body { background: var(--bg); color: var(--text); }
 [data-theme="light"] .concept-c .hero-copy, [data-theme="light"] .concept-c section:not(.hero) { background: #faf7efed; }
 @media (max-width: 1150px) { .theme-toggle-label { display: none; } .nav-actions { gap: 10px; } .site-nav { gap: 18px; } .wordmark-name { display: none; } }
 @media (max-width: 420px) { .site-nav { gap: 8px; padding-inline: 16px; } .nav-actions { gap: 8px; } .resume-link { padding: 9px; font-size: 11px; } .resume-link span { margin-left: 6px; } .menu-button { padding-inline: 8px; } .menu-orbit { margin-right: 4px; } }
+@media (max-width: 900px) {
+  .site-nav { gap: 0 8px; }
+  .site-nav .theme-toggle { width: 44px; height: 44px; padding: 0; justify-content: center; border: 1px solid var(--border); border-radius: 50%; }
+  .site-nav .theme-toggle-track { width: 22px; height: 22px; border: 0; background: none; }
+  .site-nav .theme-toggle-thumb, .site-nav .theme-toggle-label { display: none; }
+  .site-nav .theme-toggle-track svg { width: 20px; height: 20px; color: var(--text); }
+  .site-nav .theme-toggle-moon { display: none; }
+  [data-theme="light"] .site-nav .theme-toggle-sun { display: none; }
+  [data-theme="light"] .site-nav .theme-toggle-moon { display: block; }
+}
 @media (prefers-reduced-motion: reduce) { .theme-toggle-track svg, .theme-toggle-thumb { transition: none; } }

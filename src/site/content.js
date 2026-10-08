@@ -65,7 +65,7 @@ export const experience = [
   {
     company: "Mi-Jack Vietnam", dates: "May 2026 — Present", role: "Fullstack Developer",
     description: "Fullstack development focused on Microsoft Power Platform, with React and .NET.",
-    details: ["Develop applications with Power Apps and workflow automation with Power Automate.", "Work across React interfaces and .NET development alongside Power Platform solutions."],
+    details: ["Develop applications with Power Apps and workflow automation with Power Automate.", "Work across React interfaces and .NET development alongside Power Platform solutions.", "Collaborate with US stakeholders."],
     technologies: "Power Platform · Power Apps · Power Automate · React · .NET",
   },
   {
