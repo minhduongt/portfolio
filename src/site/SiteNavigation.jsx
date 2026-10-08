@@ -50,7 +50,7 @@ export default function SiteNavigation({ concept, page = 'portfolio', activeSect
       </div>}
     </div>
     </div>
-    <div className="nav-actions"><ThemeToggle /><a className="resume-link" href={resume} download="DuongTanMinh_CV.pdf">Resume <span aria-hidden="true">↓</span></a></div>
+    <div className="nav-actions"><ThemeToggle /><a className="resume-link" href={resume} download="DuongTanMinh_CV.pdf">CV <span aria-hidden="true">↓</span></a></div>
   </nav>;
 }
 
