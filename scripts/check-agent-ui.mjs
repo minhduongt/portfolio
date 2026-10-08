@@ -29,7 +29,14 @@ try {
   await page.goto(base); await page.locator('.agent-trigger').waitFor();
   assert.equal(requests.length, 0);
   await page.evaluate(() => { window.agentTestCanvas = document.querySelector('canvas'); });
-  await open(); await send('Which projects use React?'); await send('Which one uses TypeScript?');
+  await open(); delay = 800;
+  await page.locator('#agent-question').fill('Which projects use React?'); await page.locator('.agent-composer button[type=submit]').click(); await page.locator('.agent-thinking').waitFor();
+  assert.equal(await page.locator('.agent-message--user p').innerText(), 'Which projects use React?', 'Outgoing bubble appears while the API is still pending');
+  assert.equal(await page.locator('#agent-question').inputValue(), '', 'Sending clears the composer before the response');
+  assert.equal(await page.locator('.agent-message--assistant').count(), 0);
+  await page.locator('.agent-thinking').waitFor({ state: 'hidden' }); delay = 0;
+  assert.equal(await page.locator('.agent-message--user').count(), 1, 'The response does not duplicate the outgoing bubble');
+  await send('Which one uses TypeScript?');
   assert.equal(requests.length, 2); assert.equal(requests[1].history.length, 2);
   assert.equal(requests[1].context.route, '/');
   assert.match(requests[0].sessionId, /^[0-9a-f-]{36}$/u);
@@ -72,6 +79,7 @@ try {
   await reset();
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 844 });
+    await page.waitForFunction(() => { const rect = document.querySelector('.agent-panel').getBoundingClientRect(); return rect.y >= 0 && rect.bottom <= innerHeight + 1; });
     const rect = await page.locator('.agent-panel').boundingBox(); assert(rect.x >= 0 && rect.x + rect.width <= width + 1); assert(rect.y >= 0 && rect.y + rect.height <= 845);
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   }
@@ -83,10 +91,15 @@ try {
   await page.screenshot({ path: '.tmp/screenshots/z-agent-alternate-theme.png' });
   delay = 1500; response = { reply: 'Cancelled reply should not arrive.', actions: [] };
   await page.locator('#agent-question').fill('Cancelled request'); await page.locator('.agent-composer button[type=submit]').click(); await page.locator('.agent-thinking').waitFor();
+  assert.equal(await page.locator('.agent-message--user p').last().innerText(), 'Cancelled request', 'Sent message is visible before the response');
+  assert.equal(await page.locator('#agent-question').inputValue(), '', 'Composer clears immediately on send');
   const before = requests.length; await page.keyboard.press('Enter'); assert.equal(requests.length, before);
   await page.keyboard.press('Escape'); await new Promise(resolve => setTimeout(resolve, 1600)); delay = 0;
   await open(); assert.equal(await page.locator('.agent-message--assistant').count(), 0); assert.equal(await page.locator('#agent-question').inputValue(), 'Cancelled request');
+  assert.equal(await page.locator('.agent-message--user p').last().innerText(), 'Cancelled request', 'Sent message remains in the chat after cancellation');
   status = 429; await send('Rate limit'); await page.locator('.agent-error').waitFor(); assert(!(await page.locator('.agent-error').innerText()).includes('SECRET')); assert(await page.locator('.agent-composer button[type=submit]').isDisabled()); assert.match(await page.locator('.agent-privacy').innerText(), /7\d/u);
+  assert.deepEqual(requests.at(-1).history, [], 'Cancelled exchanges are excluded from model history');
+  assert.equal(await page.locator('.agent-message--user p').last().innerText(), 'Rate limit', 'Outgoing messages remain visible when the API fails');
   await page.keyboard.press('Escape'); available = false; await page.locator('.agent-trigger').click(); await page.locator('.agent-error').waitFor();
   await page.locator('.agent-error a').click(); await page.locator('#contact').waitFor();
   assert(await page.locator('#contact').evaluate(element => element.getBoundingClientRect().top < 150), 'Unavailable-agent Contact link preserves its target across pages');

@@ -31,10 +31,11 @@ function Action({ action, open, onClose, onUnavailable }) {
 export default function AgentPanel({ open, onClose }) {
   const { t, language } = useLanguage(), bridge = useAgentBridge();
   const dialog = useRef(null), input = useRef(null), log = useRef(null), active = useRef(null), identity = useRef(null);
+  const completedHistory = useRef([]);
   const [metadata, setMetadata] = useState(null), [metadataRetry, setMetadataRetry] = useState(0);
   const [messages, setMessages] = useState([]), [draft, setDraft] = useState(''), [pending, setPending] = useState('');
   const [failure, setFailure] = useState(''), [cooldown, setCooldown] = useState(0), [tick, setTick] = useState(Date.now());
-  const cancel = () => { active.current?.abort(); active.current = null; setPending(''); };
+  const cancel = () => { if (active.current && pending) setDraft(pending); active.current?.abort(); active.current = null; setPending(''); };
   useEffect(() => {
     if (open) { dialog.current.showModal(); input.current?.focus(); }
     else { cancel(); dialog.current?.close(); }
@@ -72,10 +73,11 @@ export default function AgentPanel({ open, onClose }) {
     if (active.current || blocked || !message || message.length > 2000) return;
     const controller = new AbortController(); active.current = controller;
     const timer = setTimeout(() => controller.abort(), 30000);
-    setPending(message); setDraft(message); setFailure('');
+    setMessages(previous => [...previous, { role: 'user', content: message }].slice(-40));
+    setPending(message); setDraft(''); setFailure('');
     try {
       identity.current ||= sessionId();
-      const data = await requestApi('/agent/chat', { method: 'POST', signal: controller.signal, cache: 'no-store', body: { sessionId: identity.current, message, language, history: boundedHistory(messages, message), context: bridge.context() } });
+      const data = await requestApi('/agent/chat', { method: 'POST', signal: controller.signal, cache: 'no-store', body: { sessionId: identity.current, message, language, history: boundedHistory(completedHistory.current, message), context: bridge.context() } });
       // Public lookup allows article suggestions only if the guest listing contains them.
       let blogs = [];
       if (Array.isArray(data?.actions) && data.actions.some(action => action?.type === 'navigate' && action.path?.startsWith('/blogs/'))) {
@@ -84,9 +86,11 @@ export default function AgentPanel({ open, onClose }) {
       }
       const reply = readReply(data, { blogs });
       if (controller.signal.aborted) return;
-      setMessages(previous => [...previous, { role: 'user', content: message }, reply].slice(-40)); setDraft('');
+      completedHistory.current = [...completedHistory.current, { role: 'user', content: message }, reply].slice(-10);
+      setMessages(previous => [...previous, reply].slice(-40));
     } catch (error) {
       if (active.current !== controller) return;
+      setDraft(message);
       setFailure(error.status === 429 ? 'agent.rateLimited' : error.code === 'AGENT_TIMEOUT' || error.name === 'AbortError' ? 'agent.timeout' : 'agent.unavailable');
       if (error.status === 429) { setCooldown(Date.now() + Math.max(60, error.retryAfter || 60) * 1000); setTick(Date.now()); }
     } finally {
@@ -94,14 +98,14 @@ export default function AgentPanel({ open, onClose }) {
       if (active.current === controller) { active.current = null; setPending(''); }
     }
   };
-  const clear = () => { cancel(); setMessages([]); setDraft(''); setFailure(''); input.current?.focus(); };
+  const clear = () => { cancel(); completedHistory.current = []; setMessages([]); setDraft(''); setFailure(''); input.current?.focus(); };
   const applyClose = () => { dialog.current?.close(); onClose(); };
   return <dialog ref={dialog} className="agent-panel" aria-labelledby="agent-title" onCancel={event => { event.preventDefault(); onClose(); }} onClose={() => { if (open) onClose(); }}>
     <header className="agent-header"><span className="agent-orbit" aria-hidden="true">Z<span /></span><div><h2 id="agent-title">{t('agent.name')}</h2><p>{t('agent.subtitle')}</p></div><button className="agent-icon-button" onClick={clear} aria-label={t('agent.new')} title={t('agent.new')}>↺</button><button className="agent-icon-button" onClick={onClose} aria-label={t('agent.close')} title={t('agent.close')}>×</button></header>
     <div ref={log} className="agent-log" role="log" aria-live="polite" aria-relevant="additions" aria-label={t('agent.conversation')}>
       {!messages.length && !pending && <div className="agent-intro"><span className="agent-eyebrow">{t('agent.eyebrow')}</span><h3>{t('agent.title')}</h3><p>{metadata?.greeting || t('agent.description')}</p><div className="agent-suggestions">{(metadata?.suggestedQuestions || [t('agent.questionExperience'), t('agent.questionProjects'), t('agent.questionContact')]).map(question => <button key={question} disabled={Boolean(blocked)} onClick={() => send(question)}>{question}<span aria-hidden="true"> ↗</span></button>)}</div></div>}
       {messages.map((message, index) => <div className={`agent-message agent-message--${message.role}`} key={index}><span className="agent-message-label">{t(message.role === 'user' ? 'agent.you' : 'agent.name')}</span><p>{message.content}</p>{message.actions?.length > 0 && <div className="agent-actions">{message.actions.map((action, position) => <Action key={JSON.stringify(action) + position} action={action} open={open} onClose={applyClose} onUnavailable={() => setFailure('agent.actionError')} />)}</div>}</div>)}
-      {pending && <><div className="agent-message agent-message--user"><span className="agent-message-label">{t('agent.you')}</span><p>{pending}</p></div><p className="agent-thinking" role="status"><span />{t('agent.thinking')}</p></>}
+      {pending && <p className="agent-thinking" role="status"><span />{t('agent.thinking')}</p>}
       {(failure || metadata?.available === false) && <div className="agent-error" role="alert"><p>{t(failure || 'agent.unavailable')}</p><a href={`${siteLink()}#contact`} onClick={onClose}>{t('agent.contact')} ↗</a>{metadata?.available === false && <button onClick={() => setMetadataRetry(value => value + 1)}>{t('agent.retry')}</button>}</div>}
     </div>
     <form className="agent-composer" onSubmit={event => { event.preventDefault(); send(draft); }}><label className="sr-only" htmlFor="agent-question">{t('agent.input')}</label><div className="agent-input-row"><textarea ref={input} id="agent-question" rows="2" maxLength={2000} placeholder={t('agent.placeholder')} value={draft} disabled={Boolean(pending)} onChange={event => setDraft(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(draft); } }} /><button type="submit" disabled={Boolean(blocked) || !draft.trim()} aria-label={t('agent.send')}><span aria-hidden="true">↑</span></button></div><p className="agent-privacy">{cooldown > tick ? t('agent.wait', { seconds: Math.ceil((cooldown - tick) / 1000) }) : t('agent.privacy')}</p></form>
