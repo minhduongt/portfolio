@@ -5,7 +5,8 @@ import { requestApi } from './api';
 import { LoadingIndicator } from './LoadingState';
 import { siteLink } from './SiteNavigation';
 import VisibilityBadge from './VisibilityBadge';
-import { pinnedToolsKey, readPinnedTools, readToolStar } from './toolPreferences';
+import { readToolStar } from './toolPreferences';
+import usePinnedTools from './usePinnedTools';
 
 export function ToolLockIcon() {
   return <svg className="tool-lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" /></svg>;
@@ -18,23 +19,15 @@ export default function ToolPicker({ items, tool, search, setSearch, selected, o
   const { t, locale } = useLanguage(), { user } = useSession();
   const uid = user?.uid;
   const owner = useRef(uid), active = useRef(new Map()); owner.current = uid;
-  const [pins, setPins] = useState(() => { try { return readPinnedTools(localStorage); } catch { return []; } });
+  const [pins, togglePin] = usePinnedTools();
   const [notice, setNotice] = useState(''), [pending, setPending] = useState([]), [errors, setErrors] = useState({});
   const [stars, setStars] = useState({ owner: uid, values: {} });
-  useEffect(() => {
-    const update = event => { if (event.key === pinnedToolsKey || event.key === null) { try { setPins(readPinnedTools(localStorage)); } catch { /* Keep this tab's pins if storage is blocked. */ } } };
-    window.addEventListener('storage', update);
-    return () => window.removeEventListener('storage', update);
-  }, []);
   useEffect(() => {
     setPending([]); setErrors({});
     return () => { active.current.forEach(controller => controller.abort()); active.current.clear(); };
   }, [uid]);
   const pin = item => {
-    const id = key(item), next = pins.includes(id) ? pins.filter(value => value !== id) : [...pins, id];
-    setPins(next); setNotice('');
-    try { localStorage.setItem(pinnedToolsKey, JSON.stringify(next)); }
-    catch { setNotice('toolFavorites.storageUnavailable'); }
+    setNotice(togglePin(key(item)) ? '' : 'toolFavorites.storageUnavailable');
   };
   const state = item => (stars.owner === uid && stars.values[key(item)]) || { starred: Boolean(user && item.starred), starCount: Number.isSafeInteger(item.starCount) && item.starCount >= 0 ? item.starCount : 0 };
   const star = async item => {

@@ -1,5 +1,6 @@
 {
   "filter": "Filter tools", "pin": "Pin", "pinned": "Pinned",
+  "quickAccess": "Pinned tools quick access", "openName": "Open {{name}}", "loadingPins": "Loading pinned tools…", "retryPins": "Pinned tools unavailable. Retry",
   "pinName": "Pin {{name}}", "unpinName": "Unpin {{name}}",
   "star": "Give a star", "unstar": "Remove your star",
   "starName": "Give {{name}} a star", "unstarName": "Remove your star from {{name}}",

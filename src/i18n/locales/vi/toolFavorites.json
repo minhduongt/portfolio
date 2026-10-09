@@ -1,5 +1,6 @@
 {
   "filter": "Lọc công cụ", "pin": "Ghim", "pinned": "Đã ghim",
+  "quickAccess": "Truy cập nhanh công cụ đã ghim", "openName": "Mở {{name}}", "loadingPins": "Đang tải công cụ đã ghim…", "retryPins": "Chưa tải được công cụ đã ghim. Thử lại",
   "pinName": "Ghim {{name}}", "unpinName": "Bỏ ghim {{name}}",
   "star": "Tặng sao", "unstar": "Bỏ sao đã tặng",
   "starName": "Tặng sao cho {{name}}", "unstarName": "Bỏ sao đã tặng cho {{name}}",

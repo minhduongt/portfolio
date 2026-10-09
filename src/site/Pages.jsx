@@ -1,6 +1,6 @@
 import { useLanguage } from '../i18n/LanguageProvider';
 import { useSession } from './AuthProvider';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import LoadingState from './LoadingState';
 import VisibilityBadge from './VisibilityBadge';
 import SiteNavigation, { siteLink, SiteFooter } from './SiteNavigation';
@@ -89,12 +89,26 @@ function ToolWorkspace({ tool }) {
   </section>;
 }
 
-export function Tools({ items = tools }) {
+export function Tools({ items = tools, requestedTool = new URLSearchParams(location.search).get('tool') || undefined, navigation }) {
   const { t } = useLanguage();
   const { user } = useSession();
-  const [selected, setSelected] = useState('');
+  const [selected, setSelected] = useState(requestedTool || '');
   const [search, setSearch] = useState('');
   const [pinnedOnly, setPinnedOnly] = useState(false);
+  const workspace = useRef(null);
+  useEffect(() => {
+    setSelected(requestedTool || ''); setSearch(''); setPinnedOnly(false);
+    if (requestedTool && items.some(item => (item.slug || item.id) === requestedTool)) {
+      const frame = requestAnimationFrame(() => {
+        const target = workspace.current;
+        if (!target) return;
+        const headerHeight = document.querySelector('.site-nav')?.getBoundingClientRect().height || 86;
+        target.focus({ preventScroll: true });
+        window.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerHeight - 24), behavior: 'instant' });
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [requestedTool, navigation]);
   useAgentPage({ page: 'tools', context: { route: '/tools' }, execute(action, beforeApply) {
     const item = items.find(item => item.slug === action.slug && item.visibility === 'public' && item.archivedAt == null && !item.locked && !item.isArchived && item.id);
     if (action.type !== 'open_tool' || !item) return false;
@@ -107,11 +121,11 @@ export function Tools({ items = tools }) {
   return <>
     <div className="page-heading"><span className="eyebrow">{t("THE WORKBENCH / BROWSER UTILITIES")}</span><h1>{t("Small tools.")}<br />{t("Less friction")}<span>.</span></h1><p>{t("A few useful utilities for the little things between builds.")}</p></div>
     {!tool ? <p>{t("No tools are available yet.")}</p> : <div className="tools-layout"><ToolPicker items={items} tool={tool} search={search} setSearch={setSearch} selected={key(tool)} onSelect={setSelected} pinnedOnly={pinnedOnly} setPinnedOnly={setPinnedOnly} />
-      {isLocked(tool) ? <section className="tool-workspace tool-access-lock"><div className="workspace-heading"><div><span className="eyebrow">{t('Members')}</span><h2>{t(tool.name)}</h2>{tool.description && <p>{t(tool.description)}</p>}</div><ToolLockIcon /></div><div className="tool-lock-message" role="status"><h3>{t('Members-only tool')}</h3><p>{t('Sign in to use this tool. Public tools are available without an account.')}</p><a className="button-primary" href={siteLink('login')}>{t('Sign in to use this tool')} <span aria-hidden="true">↗</span></a></div></section> : !tool.id ? <p role="status">{t("This tool is unavailable in this version of the portfolio.")}</p> : tool.id === 'language-enhancer' ? <Suspense fallback={<LoadingState label={t('languageTool.preparing')} compact />}><LanguageEnhancer key={key(tool)} tool={tool} /></Suspense> : tool.id === 'html-email' ? <Suspense fallback={<LoadingState label={t("Preparing your builder")} compact />}><HtmlEmailBuilder key={key(tool)} tool={tool} /></Suspense> : ['image', 'powerfx', 'color'].includes(tool.id) ? <Suspense fallback={<LoadingState label={t("Preparing your tool")} compact />}><AdditionalTools key={key(tool)} tool={tool} /></Suspense> : ['markdown', 'credentials', 'lorem', 'timestamp', 'hash', 'jwt', 'cron'].includes(tool.id) ? <Suspense fallback={<LoadingState label={t("Preparing your tool")} compact />}><DeveloperTools key={key(tool)} tool={tool} /></Suspense> : <ToolWorkspace key={key(tool)} tool={tool} />}</div>}
+      <div className="tool-workspace-slot" ref={workspace} tabIndex={-1}>{isLocked(tool) ? <section className="tool-workspace tool-access-lock"><div className="workspace-heading"><div><span className="eyebrow">{t('Members')}</span><h2>{t(tool.name)}</h2>{tool.description && <p>{t(tool.description)}</p>}</div><ToolLockIcon /></div><div className="tool-lock-message" role="status"><h3>{t('Members-only tool')}</h3><p>{t('Sign in to use this tool. Public tools are available without an account.')}</p><a className="button-primary" href={siteLink('login')}>{t('Sign in to use this tool')} <span aria-hidden="true">↗</span></a></div></section> : !tool.id ? <p role="status">{t("This tool is unavailable in this version of the portfolio.")}</p> : tool.id === 'language-enhancer' ? <Suspense fallback={<LoadingState label={t('languageTool.preparing')} compact />}><LanguageEnhancer key={key(tool)} tool={tool} /></Suspense> : tool.id === 'html-email' ? <Suspense fallback={<LoadingState label={t("Preparing your builder")} compact />}><HtmlEmailBuilder key={key(tool)} tool={tool} /></Suspense> : ['image', 'powerfx', 'color'].includes(tool.id) ? <Suspense fallback={<LoadingState label={t("Preparing your tool")} compact />}><AdditionalTools key={key(tool)} tool={tool} /></Suspense> : ['markdown', 'credentials', 'lorem', 'timestamp', 'hash', 'jwt', 'cron'].includes(tool.id) ? <Suspense fallback={<LoadingState label={t("Preparing your tool")} compact />}><DeveloperTools key={key(tool)} tool={tool} /></Suspense> : <ToolWorkspace key={key(tool)} tool={tool} />}</div></div>}
   </>;
 }
 
-export default function Pages({ page, postSlug }) {
+export default function Pages({ page, postSlug, toolSlug, navigation }) {
   const { t } = useLanguage();
   const post = posts.find(item => item.slug === postSlug);
   useEffect(() => {
@@ -126,6 +140,6 @@ export default function Pages({ page, postSlug }) {
     if (target) { event.preventDefault(); target.focus({ preventScroll: true }); target.scrollIntoView(); }
   };
   return <div className="portfolio concept-b concept-mix mock-page" onClick={localAnchor}><a className="skip-link" href="#main-content">{t("Skip to content")}</a><SiteNavigation concept="mix" page={page} />
-    <main id="main-content" className="content-width" tabIndex={-1}><div id="home" />{!location.pathname.includes('design-preview') ? <Suspense fallback={<LoadingState label={t(page === 'blogs' ? 'Opening the notebook' : 'Preparing the workbench')} skeleton />}><ManagedContent page={page} postSlug={postSlug} /></Suspense> : page === 'blogs' ? (post ? <BlogDetail post={post} /> : <Blogs />) : <Tools />}</main><SiteFooter />
+    <main id="main-content" className="content-width" tabIndex={-1}><div id="home" />{!location.pathname.includes('design-preview') ? <Suspense fallback={<LoadingState label={t(page === 'blogs' ? 'Opening the notebook' : 'Preparing the workbench')} skeleton />}><ManagedContent page={page} postSlug={postSlug} toolSlug={toolSlug} navigation={navigation} /></Suspense> : page === 'blogs' ? (post ? <BlogDetail post={post} /> : <Blogs />) : <Tools />}</main><SiteFooter />
   </div>;
 }

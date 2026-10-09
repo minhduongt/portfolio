@@ -18,7 +18,7 @@ function route() {
   let postSlug;
   try { postSlug = slug ? decodeURIComponent(slug) : undefined; } catch { /* Invalid slug: show the list. */ }
   return ['blogs', 'tools', 'login', 'admin'].includes(page)
-    ? { page, postSlug } : { page: 'portfolio' };
+    ? { page, postSlug, toolSlug: page === 'tools' ? new URLSearchParams(location.search).get('tool') || undefined : undefined } : { page: 'portfolio' };
 }
 
 export default function App() {
@@ -45,7 +45,8 @@ export default function App() {
       const link = event.target.closest('a[href]');
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
       const url = new URL(link.href);
-      if (url.origin !== location.origin || !url.pathname.startsWith(import.meta.env.BASE_URL) || url.search || /\.html$/u.test(url.pathname)) return;
+      if (url.origin !== location.origin || !url.pathname.startsWith(import.meta.env.BASE_URL) || /\.html$/u.test(url.pathname)) return;
+      if (url.search && (url.pathname.replace(/\/$/u, '') !== `${import.meta.env.BASE_URL}tools` || [...url.searchParams.keys()].some(key => key !== 'tool'))) return;
       if (url.pathname === location.pathname && url.hash) {
         const target = document.getElementById(url.hash.slice(1));
         if (target) { event.preventDefault(); target.focus({ preventScroll: true }); target.scrollIntoView(); }
@@ -54,7 +55,7 @@ export default function App() {
       const path = url.pathname.slice(import.meta.env.BASE_URL.length).replace(/\/$/u, '');
       if (path && !/^(blogs(?:\/[^/]+)?|tools|login|admin)$/u.test(path)) return;
       event.preventDefault();
-      history.pushState(null, '', `${url.pathname}${url.hash}`);
+      history.pushState(null, '', `${url.pathname}${url.search}${url.hash}`);
       change();
     };
     addEventListener('popstate', change);
@@ -74,5 +75,5 @@ export default function App() {
     }
     if (location.hash) history.replaceState(null, '', `${location.pathname}${location.search}`);
   }, [current.page, current.postSlug]);
-  return <AgentBridge navigate={agentNavigate} page={current.page}>{current.page === 'portfolio' ? <Portfolio /> : <Suspense fallback={<LoadingState label={t('Preparing your next view')} fullPage />}>{current.page === 'login' ? <LoginPage /> : current.page === 'admin' ? <AdminPage /> : <Pages page={current.page} postSlug={current.postSlug} />}</Suspense>}<AgentWidget /></AgentBridge>;
+  return <AgentBridge navigate={agentNavigate} page={current.page}>{current.page === 'portfolio' ? <Portfolio /> : <Suspense fallback={<LoadingState label={t('Preparing your next view')} fullPage />}>{current.page === 'login' ? <LoginPage /> : current.page === 'admin' ? <AdminPage /> : <Pages page={current.page} postSlug={current.postSlug} toolSlug={current.toolSlug} navigation={current} />}</Suspense>}<AgentWidget /></AgentBridge>;
 }

@@ -10,7 +10,7 @@ import BlogMetadata from './BlogMetadata';
 import { useLanguage } from '../i18n/LanguageProvider';
 import { useAgentPage } from './agent/AgentBridge';
 
-export default function ManagedContent({ page, postSlug }) {
+export default function ManagedContent({ page, postSlug, toolSlug, navigation }) {
   const { t } = useLanguage();
   const { user, isAdmin, loading } = useSession();
   const [retry, setRetry] = useState(0), [state, setState] = useState({});
@@ -36,7 +36,7 @@ export default function ManagedContent({ page, postSlug }) {
   if (loading || state.owner !== owner) return <LoadingState label={t(page === 'blogs' ? 'Opening the notebook' : 'Preparing the workbench')} detail={t(page === 'blogs' ? 'Gathering ideas, notes and stories.' : 'Bringing useful little tools into view.')} skeleton />;
   if (state.error) return <div className="empty-state"><h1>{t(state.error.status === 404 ? 'Article not found.' : 'Content unavailable.')}</h1><p role="alert">{t(state.error.message)}</p><button onClick={() => setRetry(value => value + 1)}>{t('Try again')}</button></div>;
   const accessNotice = !user && <div className="content-access-note"><p>{t('You’re exploring public content. Sign in to access members-only blogs and tools.')}</p><a href={siteLink('login')}>{t('Sign in ↗')}</a></div>;
-  if (page === 'tools') return <>{accessNotice}<Tools items={state.data.map(toolDefinition)} /></>;
+  if (page === 'tools') return <>{accessNotice}<Tools items={state.data.map(toolDefinition)} requestedTool={toolSlug} navigation={navigation} /></>;
   if (postSlug) {
     const post = state.data;
     return <article className="blog-detail"><a className="back-link" href={siteLink('blogs')}>{t('Back to all posts')}</a><div className="page-heading"><span className="eyebrow">{t(post.visibility === 'private' ? 'PRIVATE / ADMIN' : 'THE NOTEBOOK')}</span><VisibilityBadge visibility={post.visibility} /><h1>{post.title}</h1><p>{post.excerpt}</p></div>{post.coverImageUrl?.startsWith('https://') && <img className="blog-cover" src={post.coverImageUrl} alt="" />}<SafeHtml html={post.contentHtml} /></article>;

@@ -21,6 +21,20 @@ Stars do not unlock member or private tools. Pin and star buttons are separate
 from the workspace selection button and have accessible labels and pressed states.
 Interface labels are available in English and Vietnamese.
 
+Pinned tools also appear in the header quick-access bar on every page. The bar
+updates in the same tab immediately, scrolls horizontally on mobile, and disappears
+when there are no accessible pins. It fetches the current user's permitted catalogue
+only when pins exist; hidden/private/archived entries are never reconstructed from
+stored IDs. Catalogue failures offer retry. The shared pin store preserves this
+visit's pins across pages even when localStorage writes are blocked.
+
+Shortcuts use `/tools?tool=<catalogue-slug>` and open that exact workspace without
+reloading the document. Deep links, refresh and history preserve the requested tool.
+Repeated clicks reopen the tool even if a different workspace was selected since
+the URL was set. Selection clears picker filters and transfers keyboard focus to
+the workspace. The sticky header height is included in scrolling offsets; member
+shortcuts retain the sign-in lock.
+
 The backend already implements transactional stars; see
 `../portfolio-be/docs/api/tool-stars-api.md`. Production GET checks confirmed
 the star state endpoint, list fields, `no-store` caching and portfolio CORS origin.
@@ -28,6 +42,7 @@ Verification did not mutate production stars. Deploy the updated frontend to
 publish these controls; no new backend route or environment variable is required.
 
 Checks: `node scripts/check-tool-preferences.mjs`,
-`node scripts/check-tool-favorites-ui.mjs`, existing tool/access/agent browser
+`node scripts/check-tool-favorites-ui.mjs`,
+`node scripts/check-header-quick-access-ui.mjs`, existing tool/access/agent browser
 checks, `node scripts/check-i18n.mjs`, `npm.cmd run build`, and backend
 `npm.cmd test`. Browser tests use mocked account and star endpoints.
