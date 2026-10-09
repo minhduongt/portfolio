@@ -46,7 +46,7 @@ try {
   delay = 1200; await page.getByRole('button', { name: 'Gợi ý cách diễn đạt', exact: true }).click();
   await page.locator('.language-enhancer-form .loading-indicator__spinner').waitFor();
   assert.equal(await page.locator('.language-enhancer-form .loading-indicator__spinner').evaluate(node => getComputedStyle(node).animationName), 'loading-orbit');
-  assert.equal(await page.locator('.language-enhancer-form .loading-indicator .sr-only').evaluate(node => getComputedStyle(node).position), 'absolute');
+  assert(await page.locator('.language-enhancer-form .loading-indicator__label').isVisible(), 'Language enhancement combines visible loading text and animation');
   await page.getByRole('button', { name: 'Hủy yêu cầu', exact: true }).click(); await new Promise(resolve => setTimeout(resolve, 1300)); delay = 0;
   assert.equal(await page.locator('.language-results').count(), 0); assert.equal(await area.inputValue(), 'I very like English.');
   malformed = true; await page.getByRole('button', { name: 'Gợi ý cách diễn đạt', exact: true }).click(); await page.getByRole('alert').waitFor(); assert((await page.getByRole('alert').innerText()).includes('chưa đầy đủ')); malformed = false;

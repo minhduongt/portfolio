@@ -426,9 +426,13 @@ button.button-secondary { padding-inline: 19px; background: transparent; border:
 .loading-state { color: var(--text, #edf1ed); padding-block: clamp(36px, 7vw, 80px); width: 100%; }
 .loading-state--page { min-height: 100dvh; background: #101716; display: grid; place-content: center; padding: 32px; }
 .loading-state--compact { padding-block: 24px; }
-.loading-state__intro { display: flex; justify-content: center; }
-.loading-indicator { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; vertical-align: middle; padding: 6px; color: inherit; }
-.loading-indicator__spinner { display: block; width: 20px; height: 20px; box-sizing: border-box; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: loading-orbit .85s linear infinite; }
+.loading-state__intro { display: flex; align-items: center; gap: 28px; }
+.loading-state__eyebrow { display: block; color: var(--accent, #b8ceb9); font-size: 10px; letter-spacing: .24em; margin-bottom: 12px; }
+.loading-state .loading-state__label { margin: 0; color: var(--text, #edf1ed); font-size: clamp(20px, 3vw, 30px); letter-spacing: -.04em; line-height: 1.3; }
+.loading-state .loading-state__detail { margin: 10px 0 0; color: var(--muted, #acb9b2); font-size: 13px; line-height: 1.7; }
+.loading-indicator { display: inline-flex; align-items: center; justify-content: center; gap: 8px; max-width: 100%; min-width: 0; vertical-align: middle; padding: 6px; color: inherit; font-size: 12px; line-height: 1.5; }
+.loading-indicator__label { overflow-wrap: anywhere; }
+.loading-indicator__spinner { display: block; flex-shrink: 0; width: 20px; height: 20px; box-sizing: border-box; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: loading-orbit .85s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .loading-indicator__spinner { animation: none; } }
 .loading-moon { width: 80px; height: 80px; flex: 0 0 80px; position: relative; }
 .loading-moon__crescent { position: absolute; inset: 20px; border-radius: 50%; box-shadow: inset 10px -4px 0 0 #b8ceb9, -5px 3px 20px #b8ceb915; transform: rotate(-20deg); }
@@ -436,6 +440,8 @@ button.button-secondary { padding-inline: 19px; background: transparent; border:
 .loading-moon__orbit::after { content: ''; position: absolute; top: -3px; left: calc(50% - 3px); width: 6px; height: 6px; border-radius: 50%; background: #b8ceb9; box-shadow: 0 0 12px #b8ceb955; }
 .loading-state--compact .loading-moon { width: 48px; height: 48px; flex-basis: 48px; }
 .loading-state--compact .loading-moon__crescent { inset: 12px; box-shadow: inset 6px -3px 0 0 #b8ceb9; }
+.loading-state--compact .loading-state__label { font-size: 18px; }
+.loading-state--compact .loading-state__eyebrow { margin-bottom: 6px; }
 .loading-skeleton { display: grid; gap: 0; margin-top: 36px; max-width: 860px; }
 .loading-skeleton__row { padding: 26px 0; border-top: 1px solid var(--border, #2d3933); display: grid; gap: 12px; }
 .loading-skeleton__row span { display: block; height: 9px; width: 68%; border-radius: 3px; background: linear-gradient(100deg, #b8ceb90a 20%, #b8ceb91d 45%, #b8ceb90a 70%); background-size: 250% 100%; animation: loading-shimmer 2.8s ease-in-out infinite; }

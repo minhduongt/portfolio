@@ -14,7 +14,7 @@ await context.route('**/api/v1/**', async route => {
     await new Promise(resolve => setTimeout(resolve, 500));
     return route.fulfill({ json: { success: true, data: { reply, actions: [] } } });
   }
-  if (path.endsWith('/tools')) {
+  if (path.endsWith('/tools') || path.endsWith('/blogs')) {
     await new Promise(resolve => setTimeout(resolve, 650));
     return route.fulfill({ json: { success: true, data: [] } });
   }
@@ -24,12 +24,17 @@ const send = async () => {
   await page.locator('#agent-question').fill('Tell me about your work');
   await page.locator('.agent-composer button[type=submit]').click();
   await page.locator('.agent-thinking .loading-indicator__spinner').waitFor();
-  assert.equal(await page.locator('.agent-thinking .sr-only').evaluate(node => getComputedStyle(node).position), 'absolute', 'Waiting label is screen-reader-only');
+  assert(await page.locator('.agent-thinking .loading-indicator__label').isVisible(), 'Chat waiting combines a visible label and animation');
 };
 try {
-  await page.goto(base + 'tools');
-  await page.locator('.loading-state .loading-moon').first().waitFor();
-  assert.equal(await page.locator('.loading-state .sr-only').first().evaluate(node => getComputedStyle(node).position), 'absolute', 'Page loader hides loading prose visually');
+  for (const section of ['tools', 'blogs']) {
+    await page.goto(base + section);
+    await page.locator('.loading-state .loading-moon').first().waitFor();
+    assert(await page.locator('.loading-state__label').first().isVisible(), 'Existing page loader keeps its visible label');
+    assert(await page.locator('.loading-state__detail').first().isVisible(), 'Existing page loader keeps its supporting text');
+    assert.equal(await page.locator('.loading-moon__orbit').first().evaluate(node => getComputedStyle(node).animationName), 'loading-orbit');
+    assert.equal(await page.locator('.loading-skeleton__row span').first().evaluate(node => getComputedStyle(node).animationName), 'loading-shimmer');
+  }
   await page.locator('.agent-trigger').click();
   await page.locator('.agent-panel[open]').waitFor();
   await page.locator('#agent-question').fill('Tell me about your work');
