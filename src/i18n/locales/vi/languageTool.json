@@ -1,0 +1,24 @@
+{
+  "messages": {
+    "Language Enhancer": "Trau chuốt ngôn ngữ",
+    "Improve sentences or explore vocabulary with AI, in English or Vietnamese.": "Trau chuốt câu văn hoặc tìm hiểu từ vựng bằng AI, với tiếng Anh và tiếng Việt."
+  },
+  "remote": "/ VIẾT VỚI AI", "preparing": "Đang chuẩn bị công cụ ngôn ngữ",
+  "privacy": "Nội dung và ngữ cảnh bạn gửi sẽ được chuyển đến Google Gemini. Tránh thông tin nhạy cảm. Bạn nên kiểm tra lại các gợi ý của AI.",
+  "settings": "Thiết lập gợi ý ngôn ngữ", "mode": "Bạn muốn cải thiện điều gì?",
+  "sentence": "Trau chuốt câu văn", "keyword": "Tìm hiểu từ vựng",
+  "sentenceHelp": "Nhận nhiều cách diễn đạt rõ ràng hơn, kèm giải thích và tình huống phù hợp cho từng cách.",
+  "keywordHelp": "Tìm hiểu nghĩa của từ hoặc cụm từ, từ đồng nghĩa, trái nghĩa và ví dụ theo ngữ cảnh.",
+  "sentenceInput": "Câu hoặc đoạn văn ngắn", "keywordInput": "Từ hoặc cụm từ ngắn",
+  "sentencePlaceholder": "Ví dụ: I very like learning English.", "keywordPlaceholder": "Ví dụ: happy",
+  "outputLanguage": "Ngôn ngữ diễn đạt", "explanationLanguage": "Ngôn ngữ giải thích", "tone": "Giọng văn",
+  "languageHelp": "Chọn ngôn ngữ trùng với nội dung gốc để trau chuốt, hoặc ngôn ngữ khác để dịch.",
+  "natural": "Tự nhiên", "professional": "Chuyên nghiệp", "casual": "Thân mật", "academic": "Học thuật",
+  "context": "Đối tượng hoặc tình huống (không bắt buộc)", "contextPlaceholder": "Ví dụ: Email gửi nhà tuyển dụng",
+  "enhance": "Gợi ý cách diễn đạt", "explore": "Tìm hiểu từ", "working": "Đang chuẩn bị gợi ý…", "cancel": "Hủy yêu cầu", "cancelled": "Đã hủy yêu cầu. Nội dung của bạn vẫn được giữ lại.",
+  "results": "Gợi ý ngôn ngữ", "alternatives": "Các cách diễn đạt", "vocabulary": "Nghĩa và cách dùng",
+  "synonyms": "Từ đồng nghĩa", "antonyms": "Từ trái nghĩa", "nosynonyms": "Chưa có từ đồng nghĩa phù hợp với nghĩa này.", "noantonyms": "Chưa có từ trái nghĩa phù hợp với nghĩa này.", "examples": "Ví dụ", "notes": "Lưu ý khi dùng",
+  "required": "Bạn hãy nhập câu, từ hoặc cụm từ trước nhé.", "textLimit": "Nội dung quá dài cho chế độ này. Câu văn tối đa 2.000 ký tự; từ vựng tối đa 100 ký tự.", "contextLimit": "Đối tượng hoặc tình huống tối đa 500 ký tự.", "invalid": "Bạn hãy kiểm tra chế độ, ngôn ngữ và giọng văn rồi thử lại.",
+  "signInError": "Bạn cần đăng nhập để dùng công cụ này. Nếu đã đăng nhập, hãy làm mới phiên đăng nhập rồi thử lại.",
+  "blocked": "Nội dung này chưa thể xử lý. Bạn thử cách viết khác nhé.", "rateLimited": "Đã đạt giới hạn yêu cầu AI. Bạn vui lòng chờ trước khi thử lại; một số giới hạn cần thêm thời gian để đặt lại.", "invalidResponse": "AI trả về kết quả chưa đầy đủ. Bạn thử lại nhé.", "unavailable": "Công cụ hiện chưa thể phản hồi. Nội dung đã được giữ lại; bạn thử lại sau nhé.", "timeout": "Yêu cầu mất quá lâu. Nội dung đã được giữ lại; bạn thử lại sau một chút nhé.", "wait": "Bạn có thể thử lại sau {{seconds}} giây."
+}

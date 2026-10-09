@@ -1,0 +1,30 @@
+{
+  "help": "Bôi đen đoạn chữ rồi chọn định dạng, hoặc bấm nút để chèn nội dung mẫu. Kết quả sẽ hiện ngay ở phần xem trước.",
+  "toolbar": "Định dạng Markdown",
+  "heading": "Tiêu đề",
+  "bold": "In đậm",
+  "italic": "In nghiêng",
+  "bullets": "Danh sách",
+  "numbers": "Đánh số",
+  "quote": "Trích dẫn",
+  "link": "Liên kết",
+  "code": "Mã trong dòng",
+  "codeblock": "Khối mã",
+  "divider": "Đường phân cách",
+  "guide": "Hướng dẫn nhanh Markdown",
+  "guideHelp": "Bạn cứ viết văn bản như bình thường. Khi cần định dạng, dùng cú pháp mẫu bên dưới hoặc bấm nút trên thanh công cụ. Với liên kết, thay địa chỉ mẫu đang được chọn bằng địa chỉ bạn muốn dẫn tới.",
+  "format": "Định dạng",
+  "example": "Cú pháp mẫu",
+  "limit": "Định dạng này sẽ vượt giới hạn 50.000 ký tự. Bạn hãy xóa bớt nội dung rồi thử lại.",
+  "placeholder": {
+    "heading": "Tiêu đề của bạn",
+    "bold": "Chữ in đậm",
+    "italic": "Chữ in nghiêng",
+    "bullets": "Mục trong danh sách",
+    "numbers": "Mục trong danh sách",
+    "quote": "Nội dung trích dẫn",
+    "link": "Tên liên kết",
+    "code": "đoạn mã",
+    "codeblock": "Viết mã tại đây"
+  }
+}

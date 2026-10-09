@@ -1,7 +1,7 @@
 import { useLanguage } from '../../i18n/LanguageProvider';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { marked } from 'marked';
-import SafeHtml from '../SafeHtml';
+import { useEffect, useRef, useState } from 'react';
+import MarkdownEditor from './MarkdownEditor';
+import { LoadingIndicator } from '../LoadingState';
 import { CopyButton, ToolFrame } from './AdditionalTools';
 import { generatePassword, generateUuids, generateLorem, timestampDate, parseIsoDate, describeDate, hashText, encodeJwt, decodeJwt, parseCron } from './developerToolLogic';
 
@@ -20,14 +20,7 @@ function Field({ label, children }) {
   const { t } = useLanguage(); return <label className="utility-field">{t(label)}{children}</label>; }
 function Output({ action, label = 'Output' }) {
   const { t } = useLanguage();
-  return <>{action.error && <p className="tool-error" role="alert">{t(action.error)}</p>}<Field label={label}><textarea className="developer-output" readOnly spellCheck="false" value={action.output || ''} placeholder={t("Your result will appear here…")} /></Field><div className="workspace-actions"><CopyButton value={action.output || ''} />{action.pending && <span role="status">{t("Working…")}</span>}</div></>;
-}
-function Markdown() {
-  const { t } = useLanguage();
-  const [input, setInput] = useState(() => t('# A little space to write\n\nPreview **Markdown** as you edit.\n\n- Ideas\n- Notes\n- Useful things\n\n```js\nconst hello = "world";\n```'));
-  const preview = useMemo(() => { try { return { html: marked.parse(input, { async: false, gfm: true }) }; } catch { return { error: 'This Markdown could not be rendered.' }; } }, [input]);
-  const download = () => { const url = URL.createObjectURL(new Blob([input], { type: 'text/markdown;charset=utf-8' })); const link = document.createElement('a'); link.href = url; link.download = 'notes.md'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
-  return <><div className="tool-editor-grid markdown-editor"><Field label={t("Markdown source")}><textarea value={input} maxLength={50000} spellCheck="false" onChange={event => setInput(event.target.value)} /></Field><div><span className="utility-caption">{t("Live preview")}</span><div className="markdown-preview">{preview.error ? <p role="alert">{t(preview.error)}</p> : <SafeHtml html={preview.html} markdown />}</div></div></div><div className="workspace-actions"><CopyButton value={input} /><button className="copy-button" onClick={download} disabled={!input}>{t("Download .md")}</button><button onClick={() => setInput('')}>{t("Clear")}</button></div><p className="mock-note">{t("Preview is sanitized. Images are not fetched and scripts are not executed. Limit: 50,000 characters.")}</p></>;
+  return <>{action.error && <p className="tool-error" role="alert">{t(action.error)}</p>}<Field label={label}><textarea className="developer-output" readOnly spellCheck="false" value={action.output || ''} placeholder={t("Your result will appear here…")} /></Field><div className="workspace-actions"><CopyButton value={action.output || ''} />{action.pending && <LoadingIndicator label={t("Working…")} />}</div></>;
 }
 function PasswordUuid() {
   const { t } = useLanguage();
@@ -61,7 +54,7 @@ function Cron() {
   const [expression, setExpression] = useState('*/15 * * * *'), [timezone, setTimezone] = useState('Asia/Ho_Chi_Minh'), [start, setStart] = useState(() => new Date().toISOString()), action = useAction();
   return <><Field label={t("Cron expression")}><input spellCheck="false" value={expression} maxLength={200} onChange={event => { setExpression(event.target.value); action.clear(); }} /></Field><div className="cron-field-guide" aria-label={t("Cron field order")}>{['Minute', 'Hour', 'Day of month', 'Month', 'Day of week'].map(label => <span key={label}>{t(label)}</span>)}</div><div className="developer-controls"><Field label={t("IANA timezone")}><input value={timezone} onChange={event => { setTimezone(event.target.value); action.clear(); }} placeholder="Asia/Ho_Chi_Minh" /></Field><Field label={t("Start after (ISO date)")}><input value={start} onChange={event => { setStart(event.target.value); action.clear(); }} /></Field></div><div className="tool-run-actions"><button className="button-primary" onClick={() => action.run(() => { const result = parseCron(expression, timezone, start, locale); return `${t('Timezone')}: ${result.timezone}\n\n` + result.runs.map((run, i) => `${i + 1}. ${run.zoned}\n   UTC: ${run.utc}`).join('\n\n'); })}>{t("Parse cron")}</button></div><Output action={action} label={t("Next five runs")} /><p className="mock-note">{t("Five-field cron syntax; schedules are evaluated in the selected timezone, including DST. If both day-of-month and day-of-week are restricted, either may match. This previews runs; it does not schedule jobs.")}</p></>;
 }
-const components = { markdown: Markdown, credentials: PasswordUuid, lorem: Lorem, timestamp: Timestamp, hash: Hash, jwt: Jwt, cron: Cron };
+const components = { markdown: MarkdownEditor, credentials: PasswordUuid, lorem: Lorem, timestamp: Timestamp, hash: Hash, jwt: Jwt, cron: Cron };
 export default function DeveloperTools({ tool }) {
   const { t } = useLanguage();
   const Component = components[tool.id];

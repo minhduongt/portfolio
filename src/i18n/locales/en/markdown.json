@@ -1,0 +1,30 @@
+{
+  "help": "Select some text and choose a format, or click a button to insert a starter. See the result in the live preview.",
+  "toolbar": "Markdown formatting",
+  "heading": "Heading",
+  "bold": "Bold",
+  "italic": "Italic",
+  "bullets": "Bullet list",
+  "numbers": "Numbered list",
+  "quote": "Quote",
+  "link": "Link",
+  "code": "Inline code",
+  "codeblock": "Code block",
+  "divider": "Divider",
+  "guide": "Markdown quick guide",
+  "guideHelp": "Write plain text normally. Use these examples for formatting, or let the toolbar insert them. For links, replace the highlighted example URL with your destination.",
+  "format": "Format",
+  "example": "What to type",
+  "limit": "This formatting would exceed the 50,000-character limit. Remove some text and try again.",
+  "placeholder": {
+    "heading": "Your heading",
+    "bold": "Bold text",
+    "italic": "Italic text",
+    "bullets": "List item",
+    "numbers": "List item",
+    "quote": "Your quote",
+    "link": "Link text",
+    "code": "your code",
+    "codeblock": "Your code here"
+  }
+}

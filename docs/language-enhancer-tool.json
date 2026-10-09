@@ -1,0 +1,10 @@
+{
+  "slug": "language-enhancer",
+  "name": "Language Enhancer",
+  "description": "Improve sentences or explore vocabulary with AI, in English or Vietnamese.",
+  "category": "Writing",
+  "component": "language-enhancer",
+  "visibility": "limited",
+  "sortOrder": 20,
+  "config": {}
+}

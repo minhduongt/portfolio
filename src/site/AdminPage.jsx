@@ -1,6 +1,6 @@
 import { useLanguage } from '../i18n/LanguageProvider';
 import { useEffect, useState } from 'react';
-import LoadingState from './LoadingState';
+import LoadingState, { LoadingIndicator } from './LoadingState';
 import { useSession } from './AuthProvider';
 import { componentKeys, contentPayload, requestApi } from './api';
 import SiteNavigation, { siteLink, SiteFooter } from './SiteNavigation';
@@ -49,8 +49,9 @@ function Management({ kind, onDenied }) {
     {form && <form className="admin-editor" onSubmit={event => { event.preventDefault(); run(async () => { if (kind === 'tools' && (rows === null || !availableComponents.includes(form.component))) throw new Error('This tool component already exists. Choose an available component or edit the existing tool.'); const body = contentPayload(kind, form, editing || false); await requestApi(`/${kind}${editing ? `/${editing.slug}` : ''}`, { user, method: editing ? 'PATCH' : 'POST', body }); setForm(null); setEditing(null); }); }}>
       <h2>{t(editing ? (kind === 'blogs' ? 'Edit blog' : 'Edit tool') : (kind === 'blogs' ? 'Create blog' : 'Create tool'))}</h2><fieldset disabled={busy || (kind === 'tools' && rows === null)}>
       {field('slug', 'Slug')}{kind === 'blogs' ? <>{field('title', 'Title')}{field('excerpt', 'Excerpt', true)}{field('tags', 'Tags (comma separated)')}{field('coverImageUrl', 'Cover image HTTPS URL')}<RichTextEditor value={form.contentHtml} onChange={contentHtml => setForm({ ...form, contentHtml })} disabled={busy} /><details><summary>{t("Preview content")}</summary><SafeHtml html={form.contentHtml} /></details></> : <>{field('name', 'Tool name')}{field('description', 'Description', true)}<label className="utility-field">{t("Tool component")}<select value={form.component} onChange={event => setForm({ ...form, component: event.target.value })}>{availableComponents.map(key => <option key={key}>{key}</option>)}</select></label>{field('category', 'Category')}{field('sortOrder', 'Sort order')}{field('config', 'Config JSON', true)}<p className="mock-note">{t("Config is saved as metadata. Utilities currently use their built-in controls.")}</p></>}
-      <label className="utility-field">{t("Visibility")}<select value={form.visibility} onChange={event => setForm({ ...form, visibility: event.target.value })}><option value="public">{t("Public · everyone")}</option><option value="limited">{t("Limited · signed-in users")}</option><option value="private">{t("Private · admins only")}</option></select></label><div className="workspace-actions"><button className="button-primary">{busy ? t("Saving…") : t("Save content")}</button><button type="button" onClick={() => setForm(null)}>{t("Cancel editing")}</button></div></fieldset>
+      <label className="utility-field">{t("Visibility")}<select value={form.visibility} onChange={event => setForm({ ...form, visibility: event.target.value })}><option value="public">{t("Public · everyone")}</option><option value="limited">{t("Limited · signed-in users")}</option><option value="private">{t("Private · admins only")}</option></select></label><div className="workspace-actions"><button className="button-primary" aria-busy={busy}>{t("Save content")}</button><button type="button" onClick={() => setForm(null)}>{t("Cancel editing")}</button></div></fieldset>
     </form>}
+    {busy && <LoadingIndicator label={t("Saving…")} />}
     {error && <p className="tool-error" role="alert">{t(error)}</p>}{notice && <p role="status">{t(notice)}</p>}
   </>;
 }

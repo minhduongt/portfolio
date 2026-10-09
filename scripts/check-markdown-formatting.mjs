@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import { formatMarkdown } from '../src/site/tools/markdownFormatting.js';
+assert.equal(formatMarkdown('hello world', 6, 11, 'bold', 'Text').value, 'hello **world**');
+assert.deepEqual(formatMarkdown('', 0, 0, 'italic', 'Text'), { value: '*Text*', start: 1, end: 5 });
+assert.equal(formatMarkdown('one\ntwo\nthree', 1, 7, 'bullets', 'Item').value, '- one\n- two\nthree');
+assert.equal(formatMarkdown('one\ntwo', 0, 7, 'numbers', 'Item').value, '1. one\n2. two');
+assert.equal(formatMarkdown('title', 2, 2, 'heading', 'Heading').value, '## title');
+assert.deepEqual(formatMarkdown('\nnext', 0, 0, 'heading', 'Heading'), { value: '## Heading\nnext', start: 3, end: 10 });
+assert.equal(formatMarkdown('paragraph\n', 10, 10, 'divider', '').value, 'paragraph\n\n---\n');
+const link = formatMarkdown('website', 0, 7, 'link', 'Link text');
+assert.equal(link.value, '[website](https://example.com)');
+assert.equal(link.value.slice(link.start, link.end), 'https://example.com');
+assert.match(formatMarkdown('```', 0, 3, 'codeblock', 'code').value, /^````\n```\n````/u);
+assert.equal(formatMarkdown('a\nb', 0, 2, 'quote', 'Text').value, '> a\nb');
+assert.throws(() => formatMarkdown('', 0, 0, 'execute', 'Text'));
+console.log('Markdown formatting preserves selections, line boundaries, link editing and fenced code.');

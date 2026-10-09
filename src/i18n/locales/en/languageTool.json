@@ -1,0 +1,24 @@
+{
+  "messages": {
+    "Language Enhancer": "Language Enhancer",
+    "Improve sentences or explore vocabulary with AI, in English or Vietnamese.": "Improve sentences or explore vocabulary with AI, in English or Vietnamese."
+  },
+  "remote": "/ AI WRITING TOOL", "preparing": "Preparing Language Enhancer",
+  "privacy": "The text and context you submit are sent to Google Gemini. Avoid sensitive information. AI suggestions may need review.",
+  "settings": "Language enhancement settings", "mode": "What would you like to improve?",
+  "sentence": "Improve a sentence", "keyword": "Explore vocabulary",
+  "sentenceHelp": "Get several clearer alternatives, with explanations and when to use each one.",
+  "keywordHelp": "Learn a word or short phrase, its synonyms, antonyms and examples in context.",
+  "sentenceInput": "Sentence or short paragraph", "keywordInput": "Word or short phrase",
+  "sentencePlaceholder": "For example: I very like learning English.", "keywordPlaceholder": "For example: happy",
+  "outputLanguage": "Writing language", "explanationLanguage": "Explanation language", "tone": "Tone",
+  "languageHelp": "Choose the same language as your input to polish it, or another language to translate it.",
+  "natural": "Natural", "professional": "Professional", "casual": "Casual", "academic": "Academic",
+  "context": "Audience or situation (optional)", "contextPlaceholder": "For example: An email to a recruiter",
+  "enhance": "Improve wording", "explore": "Explore word", "working": "Preparing suggestions…", "cancel": "Cancel request", "cancelled": "Request cancelled. Your text is still here.",
+  "results": "Language suggestions", "alternatives": "Ways to say it", "vocabulary": "Meaning and usage",
+  "synonyms": "Synonyms", "antonyms": "Antonyms", "nosynonyms": "No suitable synonym was found for this meaning.", "noantonyms": "No meaningful opposite was found for this meaning.", "examples": "Examples", "notes": "Usage notes",
+  "required": "Enter a sentence, word or short phrase first.", "textLimit": "Your text is too long for this mode. Use up to 2,000 characters for sentences or 100 for vocabulary.", "contextLimit": "Keep the audience or situation within 500 characters.", "invalid": "Check the selected mode, languages and tone, then try again.",
+  "signInError": "Sign in to use Language Enhancer. If you are already signed in, refresh your session and try again.",
+  "blocked": "This wording could not be processed. Try different text.", "rateLimited": "The AI request limit has been reached. Please wait before trying again; some limits take longer to reset.", "invalidResponse": "The AI returned an incomplete result. Please try again.", "unavailable": "Language Enhancer is temporarily unavailable. Your text has been kept; try again later.", "timeout": "The request took too long. Your text has been kept; try again in a moment.", "wait": "You can try again in {{seconds}} seconds."
+}

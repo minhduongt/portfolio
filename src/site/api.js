@@ -33,12 +33,12 @@ export async function requestApi(path, { user, method = 'GET', body, signal, cac
   return send(false);
 }
 
-export const componentKeys = { 'json-formatter': 'json', 'url-encoder-decoder': 'url', 'word-counter': 'words', 'image-converter': 'image', 'powerfx-formatter': 'powerfx', 'color-picker': 'color', 'markdown-editor': 'markdown', 'password-uuid-generator': 'credentials', 'lorem-ipsum-generator': 'lorem', 'unix-timestamp-converter': 'timestamp', 'hash-generator': 'hash', 'jwt-encoder-decoder': 'jwt', 'cron-parser': 'cron', 'html-email-builder': 'html-email' };
+export const componentKeys = { 'json-formatter': 'json', 'url-encoder-decoder': 'url', 'word-counter': 'words', 'image-converter': 'image', 'powerfx-formatter': 'powerfx', 'color-picker': 'color', 'markdown-editor': 'markdown', 'password-uuid-generator': 'credentials', 'lorem-ipsum-generator': 'lorem', 'unix-timestamp-converter': 'timestamp', 'hash-generator': 'hash', 'jwt-encoder-decoder': 'jwt', 'cron-parser': 'cron', 'html-email-builder': 'html-email', 'language-enhancer': 'language-enhancer' };
 export function toolDefinition(record) {
   const id = Object.hasOwn(componentKeys, record.component) ? componentKeys[record.component] : null;
   const local = tools.find(tool => tool.id === id);
   // Only metadata is consumed. Remote config/code never controls executable utilities.
-  return { ...record, id, icon: local?.icon || '?', category: record.category || 'Utility' };
+  return { ...record, id, remote: id === 'language-enhancer' || record.slug === 'language-enhancer', visibility: id === 'language-enhancer' && record.visibility === 'public' ? 'limited' : record.visibility, icon: local?.icon || '?', category: record.category || 'Utility' };
 }
 export function contentPayload(kind, form, editing = false) {
   if (!['public', 'limited', 'private'].includes(form.visibility)) throw new Error('Choose public, limited or private visibility.');

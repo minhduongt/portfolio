@@ -1,5 +1,6 @@
 import { useLanguage } from '../../i18n/LanguageProvider';
 import { useEffect, useRef, useState } from 'react';
+import { LoadingIndicator } from '../LoadingState';
 import { colorValues, formatPowerFx } from './toolLogic';
 
 export function CopyButton({ value }) {
@@ -116,7 +117,7 @@ function ImageConverter() {
       {format !== 'image/png' && <label className="utility-field">{t("Quality ·")} {quality}%<input type="range" min="1" max="100" value={quality} onChange={event => { invalidate(); setQuality(event.target.value); }} /></label>}
       {format === 'image/jpeg' && <label className="utility-field">{t("JPEG background")}<input type="color" value={background} onChange={event => { invalidate(); setBackground(event.target.value); }} /></label>}
     </div>
-    <div className="tool-run-actions"><button className="button-primary" disabled={busy} onClick={convert}>{t(busy ? 'Converting…' : 'Convert image')}</button>{result && <a className="button-secondary" href={result.url} download={result.name}>{t("Download converted image")}</a>}</div>
+    <div className="tool-run-actions"><button className="button-primary" disabled={busy} aria-busy={busy} onClick={convert}>{t('Convert image')}</button>{busy && <LoadingIndicator label={t('Converting…')} />}{result && <a className="button-secondary" href={result.url} download={result.name}>{t("Download converted image")}</a>}</div>
     <div role="status">{result && <p className="file-summary">{result.width} × {result.height} {t("px ·")} {(result.size / 1024).toFixed(1)} {t("KiB")}</p>}</div>
     {result && <img className="converted-image" src={result.url} alt={t("Converted image preview")} />}
     {error && <p className="tool-error" role="alert">{t(error)}</p>}
@@ -126,7 +127,7 @@ function ImageConverter() {
 
 export function ToolFrame({ tool, children }) {
   const { t } = useLanguage();
-  return <section className="tool-workspace" aria-label={t('{{name}} workspace', { name: t(tool.name) })}><div className="workspace-heading"><div><span className="eyebrow">{t(tool.category)} {t("/ LOCAL UTILITY")}</span><h2>{t(tool.name)}</h2><p>{t(tool.description)}</p></div><span className="tool-symbol" aria-hidden="true">{tool.icon}</span></div>{children}</section>;
+  return <section className="tool-workspace" aria-label={t('{{name}} workspace', { name: t(tool.name) })}><div className="workspace-heading"><div><span className="eyebrow">{t(tool.category)} {t(tool.remote ? 'languageTool.remote' : '/ LOCAL UTILITY')}</span><h2>{t(tool.name)}</h2><p>{t(tool.description)}</p></div><span className="tool-symbol" aria-hidden="true">{tool.icon}</span></div>{children}</section>;
 }
 export default function AdditionalTools({ tool }) {
   const { t } = useLanguage();

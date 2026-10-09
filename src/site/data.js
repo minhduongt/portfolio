@@ -16,6 +16,7 @@ export const posts = [
 ];
 
 export const tools = [
+  { id: 'language-enhancer', name: 'Language Enhancer', category: 'Writing', icon: 'A↗', visibility: 'limited', remote: true, description: 'Improve sentences or explore vocabulary with AI, in English or Vietnamese.' },
   { id: 'json', name: 'JSON Formatter', category: 'Data', icon: '{ }', description: 'Make JSON easier to read. Validate, format and inspect a payload.' },
   { id: 'url', name: 'URL Encoder / Decoder', category: 'Web', icon: '%', description: 'Encode or decode a URL component without leaving your browser.' },
   { id: 'words', name: 'Word Counter', category: 'Writing', icon: 'Aa', description: 'A quick count of words, characters and lines as you write.' },

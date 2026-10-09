@@ -1,5 +1,6 @@
 import { lazy, Suspense, useRef, useState } from 'react';
 import { useLanguage } from '../../i18n/LanguageProvider';
+import { LoadingIndicator } from '../LoadingState';
 import './agent.css';
 
 const AgentPanel = lazy(() => import('./AgentPanel'));
@@ -10,6 +11,6 @@ export default function AgentWidget() {
   const close = () => { setOpened(false); };
   return <div className="z-agent">
     <button ref={trigger} className="agent-trigger" aria-label={t('agent.open')} aria-haspopup="dialog" aria-expanded={opened} onClick={() => { setLoaded(true); setOpened(true); }}><span className="agent-orbit" aria-hidden="true">Z<span /></span><span>{t('agent.name')}</span><span className="agent-trigger-arrow" aria-hidden="true">↗</span></button>
-    {loaded && <Suspense fallback={opened ? <div className="agent-loading" role="status">{t('agent.loading')}</div> : null}><AgentPanel open={opened} onClose={close} /></Suspense>}
+    {loaded && <Suspense fallback={opened ? <div className="agent-loading"><LoadingIndicator label={t('agent.loading')} /></div> : null}><AgentPanel open={opened} onClose={close} /></Suspense>}
   </div>;
 }

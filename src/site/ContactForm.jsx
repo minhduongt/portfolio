@@ -2,6 +2,7 @@ import { useLanguage } from '../i18n/LanguageProvider';
 import { localizeInvalidField, clearFieldValidation } from '../i18n/formValidation';
 import { useRef, useState } from 'react';
 import { requestApi } from './api';
+import { LoadingIndicator } from './LoadingState';
 import { profile } from './content';
 
 export default function ContactForm() {
@@ -29,7 +30,8 @@ export default function ContactForm() {
       <label className="utility-field">{t("Your email")}<input name="email" type="email" autoComplete="email" required maxLength={254} placeholder="you@example.com" /></label>
     </div><label className="utility-field">{t("Phone")} <span className="optional-label">{t("Optional")}</span><input name="phone" type="tel" autoComplete="tel" maxLength={40} placeholder={t("If you prefer a call")} /></label>
     <label className="utility-field">{t("Your message")}<textarea name="message" required maxLength={5000} placeholder={t("A project, an opportunity, or just a hello…")} /></label>
-    <button className="button-primary auth-submit" type="submit">{state.pending ? t("Sending your note…") : t("Send message")}<span aria-hidden="true">↗</span></button></fieldset>
+    <button className="button-primary auth-submit" type="submit">{t("Send message")}<span aria-hidden="true">↗</span></button></fieldset>
+    {state.pending && <LoadingIndicator label={t("Sending your note…")} />}
     {state.error && <div className="auth-message auth-message--error" role="alert"><p>{t(state.error)}</p></div>}
     {state.success && <div className="auth-message" role="status"><p>{t("Thank you. Your message has been sent — I’ll get back to you by email.")}</p></div>}
     <p className="contact-direct">{t("Prefer your email app?")} <a href={`mailto:${profile.email}`}>{t("Email me directly ↗")}</a></p>

@@ -1,7 +1,7 @@
 import { useLanguage } from '../i18n/LanguageProvider';
 import { localizeInvalidField, clearFieldValidation } from '../i18n/formValidation';
 import { useEffect, useRef, useState } from 'react';
-import LoadingState from './LoadingState';
+import LoadingState, { LoadingIndicator } from './LoadingState';
 import { GoogleAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { requestApi } from './api';
 import { auth, useSession } from './AuthProvider';
@@ -57,8 +57,9 @@ export default function LoginPage() {
       <label className="utility-field">{t("Email")}<input ref={emailRef} type="email" autoComplete="username" maxLength={254} placeholder="you@example.com" required disabled={pending} value={email} onChange={event => setEmail(event.target.value)} /></label>
       <div className="auth-password"><label className="utility-field">{t("Password")}<input type={showPassword ? 'text' : 'password'} autoComplete={signup ? 'new-password' : 'current-password'} maxLength={4096} placeholder={t(signup ? 'Create a password' : "Enter your password")} aria-describedby={signup ? 'signup-password-hint' : undefined} required disabled={pending} value={password} onChange={event => setPassword(event.target.value)} /></label><button className="password-toggle" type="button" disabled={pending} aria-label={showPassword ? t("Hide password") : t("Show password")} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}>{showPassword ? t("Hide") : t("Show")}</button></div>
       {signup ? <><p id="signup-password-hint" className="signup-password-hint">{t('Use at least 6 characters. A stronger password may be required by the account policy.')}</p><label className="utility-field">{t('Confirm password')}<input type={showPassword ? 'text' : 'password'} autoComplete="new-password" maxLength={4096} placeholder={t('Enter your password again')} required disabled={pending} value={confirmation} onChange={event => setConfirmation(event.target.value)} /></label></> : <button className="auth-reset" type="button" disabled={pending || !email.trim()} onClick={() => { if (!emailRef.current?.reportValidity()) return; action(async () => { await sendPasswordResetEmail(auth, email.trim()); setNotice('If this email has an account, a reset email will be sent.'); }); }}>{t("Reset password")}</button>}
-      <button className="button-primary auth-submit" disabled={pending}>{pending ? t("Please wait…") : t(signup ? 'Create account' : "Sign in")}<span aria-hidden="true">↗</span></button></form>
+      <button className="button-primary auth-submit" disabled={pending} aria-busy={pending}>{t(signup ? 'Create account' : "Sign in")}<span aria-hidden="true">↗</span></button></form>
       <div className="auth-divider"><span>{t("or continue with")}</span></div><button className="auth-google" disabled={pending} onClick={() => action(() => signInWithPopup(auth, new GoogleAuthProvider()))}><span className="google-mark" aria-hidden="true">G</span>{t("Continue with Google")}</button></>}
+    {pending && <LoadingIndicator label={t("Please wait…")} />}
     {(error || session.error) && <div className="auth-message auth-message--error" role="alert"><strong>{error ? t("Unable to complete request") : t("Account access unavailable")}</strong><p>{t(error || session.error)}</p></div>}{notice && <div className="auth-message" role="status"><p>{t(notice)}</p></div>}
     <a className="auth-back" href={siteLink()}>{t("← Back to portfolio")}</a></div></div></main><SiteFooter /></div>;
 }
