@@ -5,7 +5,6 @@ import VisitorStats from './VisitorStats';
 import ThemeToggle from './ThemeToggle';
 import { useLanguage } from '../i18n/LanguageProvider';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
-import HeaderQuickAccess from './HeaderQuickAccess';
 
 export function siteLink(page = 'portfolio', post) {
   if (!location.pathname.includes('design-preview')) {
@@ -32,7 +31,7 @@ export default function SiteNavigation({ concept, page = 'portfolio', activeSect
   useEffect(() => {
     const update = () => {
       const nav = navRef.current, rect = nav.getBoundingClientRect();
-      const lastRow = nav.querySelector('.header-quick-access') || menuRef.current;
+      const lastRow = menuRef.current;
       // The expanded mobile menu is dismissed before section navigation.
       const height = matchMedia('(max-width: 900px)').matches && lastRow ? lastRow.getBoundingClientRect().bottom - rect.top + parseFloat(getComputedStyle(nav).paddingBottom) : rect.height;
       document.documentElement.style.setProperty('--site-header-height', `${height}px`);
@@ -77,7 +76,6 @@ export default function SiteNavigation({ concept, page = 'portfolio', activeSect
     </div>
     </div>
     {!mobile && navActions}
-    {mixed && <HeaderQuickAccess onNavigate={() => setMenuOpen(false)} />}
   </nav>;
 }
 

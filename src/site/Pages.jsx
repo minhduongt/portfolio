@@ -7,6 +7,7 @@ import SiteNavigation, { siteLink, SiteFooter } from './SiteNavigation';
 import { posts, tools } from './data';
 import { useAgentPage } from './agent/AgentBridge';
 import ToolPicker, { ToolLockIcon } from './ToolPicker';
+import PinnedToolsBar from './PinnedToolsBar';
 
 const AdditionalTools = lazy(() => import('./tools/AdditionalTools'));
 const DeveloperTools = lazy(() => import('./tools/DeveloperTools'));
@@ -120,6 +121,7 @@ export function Tools({ items = tools, requestedTool = new URLSearchParams(locat
   const isLocked = item => item.locked === true || (item.visibility === 'limited' && !user);
   return <>
     <div className="page-heading"><span className="eyebrow">{t("THE WORKBENCH / BROWSER UTILITIES")}</span><h1>{t("Small tools.")}<br />{t("Less friction")}<span>.</span></h1><p>{t("A few useful utilities for the little things between builds.")}</p></div>
+    <PinnedToolsBar items={items} />
     {!tool ? <p>{t("No tools are available yet.")}</p> : <div className="tools-layout"><ToolPicker items={items} tool={tool} search={search} setSearch={setSearch} selected={key(tool)} onSelect={setSelected} pinnedOnly={pinnedOnly} setPinnedOnly={setPinnedOnly} />
       <div className="tool-workspace-slot" ref={workspace} tabIndex={-1}>{isLocked(tool) ? <section className="tool-workspace tool-access-lock"><div className="workspace-heading"><div><span className="eyebrow">{t('Members')}</span><h2>{t(tool.name)}</h2>{tool.description && <p>{t(tool.description)}</p>}</div><ToolLockIcon /></div><div className="tool-lock-message" role="status"><h3>{t('Members-only tool')}</h3><p>{t('Sign in to use this tool. Public tools are available without an account.')}</p><a className="button-primary" href={siteLink('login')}>{t('Sign in to use this tool')} <span aria-hidden="true">↗</span></a></div></section> : !tool.id ? <p role="status">{t("This tool is unavailable in this version of the portfolio.")}</p> : tool.id === 'language-enhancer' ? <Suspense fallback={<LoadingState label={t('languageTool.preparing')} compact />}><LanguageEnhancer key={key(tool)} tool={tool} /></Suspense> : tool.id === 'html-email' ? <Suspense fallback={<LoadingState label={t("Preparing your builder")} compact />}><HtmlEmailBuilder key={key(tool)} tool={tool} /></Suspense> : ['image', 'powerfx', 'color'].includes(tool.id) ? <Suspense fallback={<LoadingState label={t("Preparing your tool")} compact />}><AdditionalTools key={key(tool)} tool={tool} /></Suspense> : ['markdown', 'credentials', 'lorem', 'timestamp', 'hash', 'jwt', 'cron'].includes(tool.id) ? <Suspense fallback={<LoadingState label={t("Preparing your tool")} compact />}><DeveloperTools key={key(tool)} tool={tool} /></Suspense> : <ToolWorkspace key={key(tool)} tool={tool} />}</div></div>}
   </>;

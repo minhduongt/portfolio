@@ -19,13 +19,15 @@ await context.route('**/api/v1/**', async route => {
   return route.fulfill({ status: path.endsWith('/tools') && unavailable ? 503 : 200, json: { success: !unavailable || !path.endsWith('/tools'), data } });
 });
 await context.addInitScript(key => { if (!localStorage.getItem(key)) localStorage.setItem(key, '["hidden-private"]'); }, pinnedToolsKey);
-const bar = page.locator('.header-quick-access');
+const bar = page.locator('.pinned-tools-bar');
 const open = name => bar.getByRole('link', { name: `Open ${name}`, exact: true });
 try {
   await page.goto(base + 'tools'); await page.getByRole('button', { name: 'JSON Formatter', exact: true }).waitFor();
   await bar.waitFor({ state: 'hidden' }); assert.equal(await page.getByText('hidden-private').count(), 0, 'Hidden pins are not restored as accessible tools');
   await page.getByRole('button', { name: 'Pin URL Encoder / Decoder', exact: true }).click(); await open('URL Encoder / Decoder').waitFor();
   assert.equal(new URL(await open('URL Encoder / Decoder').getAttribute('href'), base).searchParams.get('tool'), 'url-encoder');
+  assert.equal(await page.locator('.site-nav .pinned-tools-bar').count(), 0, 'Bar is outside the header');
+  assert(await bar.evaluate(node => node.previousElementSibling?.classList.contains('page-heading')), 'Pinned bar follows the Tools title');
   await page.evaluate(() => { window.quickAccessDocument = 'same document'; });
   await open('URL Encoder / Decoder').click(); await page.getByRole('heading', { name: 'URL Encoder / Decoder', exact: true }).waitFor();
   assert.equal(await page.evaluate(() => window.quickAccessDocument), 'same document', 'Shortcut navigates without reloading');
@@ -40,29 +42,28 @@ try {
   await page.goBack(); await page.getByRole('heading', { name: 'URL Encoder / Decoder', exact: true }).waitFor();
   await page.goForward(); await page.locator('.tool-access-lock').waitFor();
   await page.getByRole('button', { name: 'Pin JSON Formatter', exact: true }).click(); await open('JSON Formatter').waitFor();
-  await page.locator('.wordmark').click(); await page.locator('.quote-text').waitFor(); await open('URL Encoder / Decoder').waitFor();
-  assert.equal(await bar.locator('a').count(), 3, 'Pinned shortcuts stay available on the portfolio page');
+  await page.locator('.wordmark').click(); await page.locator('.quote-text').waitFor();
+  assert.equal(await bar.count(), 0, 'Pinned bar is absent on the portfolio page');
   await page.locator('.menu-button').click(); await page.getByRole('link', { name: 'About', exact: true }).click();
   await page.waitForFunction(() => document.querySelector('#about').getBoundingClientRect().top <= document.querySelector('.site-nav').getBoundingClientRect().bottom + 48);
   assert(await page.locator('#about').evaluate(node => node.getBoundingClientRect().top >= document.querySelector('.site-nav').getBoundingClientRect().bottom - 1), 'Section navigation accounts for the quick bar after dismissing the mobile menu');
-  await open('URL Encoder / Decoder').click(); await page.getByRole('heading', { name: 'URL Encoder / Decoder', exact: true }).waitFor();
+  await page.goto(base + 'blogs'); await page.locator('.page-heading').waitFor(); assert.equal(await bar.count(), 0, 'Pinned bar is absent on the blogs page');
+  await page.goto(base + 'tools'); await open('URL Encoder / Decoder').click(); await page.getByRole('heading', { name: 'URL Encoder / Decoder', exact: true }).waitFor();
   await page.reload(); await page.getByRole('heading', { name: 'URL Encoder / Decoder', exact: true }).waitFor(); await open('URL Encoder / Decoder').waitFor();
   await page.getByRole('button', { name: 'Unpin URL Encoder / Decoder', exact: true }).click(); assert.equal(await open('URL Encoder / Decoder').count(), 0, 'Unpin updates the header immediately');
   const other = await context.newPage(); await other.goto(base + 'blogs'); await other.evaluate(key => localStorage.setItem(key, '["custom-json"]'), pinnedToolsKey);
-  await page.waitForFunction(() => document.querySelectorAll('.header-quick-access a').length === 1); assert(await open('JSON Formatter').isVisible(), 'Storage changes synchronize across tabs'); await other.close();
-  await page.locator('.language-switcher button[lang="vi"]').click(); assert.equal(await page.locator('.header-quick-access__label').innerText(), 'Đã ghim'); await page.locator('.language-switcher button[lang="en"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('.pinned-tools-bar a').length === 1); assert(await open('JSON Formatter').isVisible(), 'Storage changes synchronize across tabs'); await other.close();
+  await page.locator('.language-switcher button[lang="vi"]').click(); assert.equal(await page.locator('.pinned-tools-bar__label').innerText(), 'Đã ghim'); await page.locator('.language-switcher button[lang="en"]').click();
   await page.getByRole('button', { name: 'Pin URL Encoder / Decoder', exact: true }).click(); await page.getByRole('button', { name: 'Pin Members tool', exact: true }).click();
   for (const width of [320, 390, 768, 1440]) { await page.setViewportSize({ width, height: 950 }); assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Header fits ${width}`); }
-  await page.setViewportSize({ width: 320, height: 844 }); assert(await page.locator('.header-quick-access__list').evaluate(node => node.scrollWidth > node.clientWidth), 'Multiple pins scroll inside the compact bar');
+  await page.setViewportSize({ width: 320, height: 844 }); assert(await page.locator('.pinned-tools-bar__list').evaluate(node => node.scrollWidth > node.clientWidth), 'Multiple pins scroll inside the compact bar');
   await page.getByRole('button', { name: 'Unpin URL Encoder / Decoder', exact: true }).click(); await page.getByRole('button', { name: 'Unpin Members tool', exact: true }).click();
-  await page.setViewportSize({ width: 390, height: 844 }); await page.locator('.menu-button').click(); await open('JSON Formatter').click(); assert.equal(await page.locator('.menu-button').getAttribute('aria-expanded'), 'false');
+  await page.setViewportSize({ width: 390, height: 844 }); await open('JSON Formatter').click();
   await page.getByRole('heading', { name: 'JSON Formatter', exact: true }).waitFor();
   await page.waitForFunction(() => document.querySelector('.tool-workspace-slot').getBoundingClientRect().top <= document.querySelector('.site-nav').getBoundingClientRect().bottom + 48);
-  mkdirSync('.tmp/screenshots', { recursive: true }); await page.screenshot({ path: '.tmp/screenshots/header-quick-access-mobile.png' });
+  mkdirSync('.tmp/screenshots', { recursive: true }); await page.screenshot({ path: '.tmp/screenshots/pinned-tools-bar-mobile.png' });
   await page.getByRole('button', { name: 'Unpin JSON Formatter', exact: true }).click(); await bar.waitFor({ state: 'hidden' });
-  assert.equal(await page.locator('.header-quick-access').count(), 0, 'No bar when nothing is pinned');
-  unavailable = true; await page.getByRole('button', { name: 'Pin JSON Formatter', exact: true }).click(); await page.getByRole('button', { name: 'Pinned tools unavailable. Retry', exact: true }).waitFor();
-  unavailable = false; await page.getByRole('button', { name: 'Pinned tools unavailable. Retry', exact: true }).click(); await open('JSON Formatter').waitFor();
+  assert.equal(await page.locator('.pinned-tools-bar').count(), 0, 'No bar when nothing is pinned');
   assert.deepEqual(errors, []);
-  console.log('Header quick access passed: live pin/unpin, exact slug selection, SPA/deep links, member lock, hidden pins, cross-page/tab persistence, Vietnamese, focus/scroll and four widths.');
+  console.log('Tools page quick access passed: live pin/unpin, exact slug selection, SPA/deep links, member lock, hidden pins, Tools-only placement, cross-tab persistence, Vietnamese, focus/scroll and four widths.');
 } finally { await browser.close(); }

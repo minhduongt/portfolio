@@ -21,11 +21,10 @@ Stars do not unlock member or private tools. Pin and star buttons are separate
 from the workspace selection button and have accessible labels and pressed states.
 Interface labels are available in English and Vietnamese.
 
-Pinned tools also appear in the header quick-access bar on every page. The bar
-updates in the same tab immediately, scrolls horizontally on mobile, and disappears
-when there are no accessible pins. It fetches the current user's permitted catalogue
-only when pins exist; hidden/private/archived entries are never reconstructed from
-stored IDs. Catalogue failures offer retry. The shared pin store preserves this
+Pinned tools appear only on the Tools page, directly below its title and introduction.
+The bar uses the page's permitted catalogue, updates immediately, scrolls horizontally
+on mobile, and disappears when there are no accessible pins. Hidden/private/archived
+entries are never reconstructed from stored IDs. The shared pin store preserves this
 visit's pins across pages even when localStorage writes are blocked.
 
 Shortcuts use `/tools?tool=<catalogue-slug>` and open that exact workspace without
