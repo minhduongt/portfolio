@@ -1,0 +1,14 @@
+{
+  "filter": "Lọc công cụ", "pin": "Ghim", "pinned": "Đã ghim",
+  "pinName": "Ghim {{name}}", "unpinName": "Bỏ ghim {{name}}",
+  "star": "Tặng sao", "unstar": "Bỏ sao đã tặng",
+  "starName": "Tặng sao cho {{name}}", "unstarName": "Bỏ sao đã tặng cho {{name}}",
+  "signIn": "Đăng nhập để tặng sao", "signInName": "Đăng nhập để tặng sao cho {{name}}",
+  "help": "Công cụ đã ghim được lưu trên trình duyệt này. Sao được lưu theo tài khoản của bạn.",
+  "noPinned": "Chưa có công cụ đã ghim phù hợp. Hãy ghim công cụ yêu thích hoặc xem tất cả.",
+  "saving": "Đang lưu sao của bạn…",
+  "storageUnavailable": "Trình duyệt chưa cho phép lưu dữ liệu. Các công cụ đã ghim chỉ được giữ trong lần truy cập này.",
+  "starError": "Chưa thể lưu sao của bạn. Hãy thử lại. Số sao hiển thị vẫn giữ nguyên.",
+  "signInError": "Bạn hãy đăng nhập lại để lưu sao.",
+  "notFound": "Công cụ này hiện không thể nhận sao. Bạn hãy tải lại danh sách công cụ."
+}

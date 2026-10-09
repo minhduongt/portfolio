@@ -674,6 +674,21 @@ button:disabled { cursor: default; opacity: .5; }
 .tool-picker .tool-search { margin-bottom: 18px; }
 .tool-picker-list { display: flex; flex-direction: column; gap: 8px; max-height: 620px; overflow-y: auto; scrollbar-color: #40594b #101716; scrollbar-width: thin; }
 .tool-picker-list button { flex-shrink: 0; width: 100%; }
+.tool-picker-item { flex-shrink: 0; min-width: 0; border: 1px solid transparent; border-radius: 6px; }
+.tool-picker-item[data-selected="true"] { border-color: var(--border); background: var(--surface); }
+.tool-picker .tool-picker-select { border: 0; background: transparent; }
+.tool-picker .tool-picker-select[aria-pressed="true"] { background: transparent; }
+.tool-picker-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0 14px 12px; }
+.tool-picker .tool-picker-actions :is(button, a), .tool-picker .tool-picker-filters button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: auto; min-height: 40px; padding: 8px 10px; border: 1px solid var(--border); color: var(--muted); border-radius: 5px; font-size: 11px; text-decoration: none; }
+.tool-picker .tool-picker-actions :is(button, a):hover { color: var(--text); border-color: var(--accent); }
+.tool-picker .tool-picker-actions button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.tool-picker .tool-picker-actions span { margin-left: 0; }
+.tool-picker-actions svg { width: 17px; height: 17px; flex-shrink: 0; }
+.tool-picker .tool-star-button { margin-left: auto; }
+.tool-picker-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.tool-favorites-help { color: var(--muted); font-size: 11px; line-height: 1.7; margin: 2px 0 10px; }
+.tool-picker-item > :is(.tool-error, .loading-indicator) { margin: 0 14px 12px; font-size: 11px; }
+@media (max-width: 700px) { .tool-picker .tool-picker-actions :is(button, a), .tool-picker .tool-picker-filters button { min-height: 44px; } }
 .tools-layout, .tool-workspace { scroll-margin-top: 110px; }
 .email-template-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; margin-bottom: 24px; }
 .email-template-controls .utility-field { flex: 1; min-width: 160px; margin-bottom: 0; }

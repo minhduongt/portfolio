@@ -6,6 +6,7 @@ import VisibilityBadge from './VisibilityBadge';
 import SiteNavigation, { siteLink, SiteFooter } from './SiteNavigation';
 import { posts, tools } from './data';
 import { useAgentPage } from './agent/AgentBridge';
+import ToolPicker, { ToolLockIcon } from './ToolPicker';
 
 const AdditionalTools = lazy(() => import('./tools/AdditionalTools'));
 const DeveloperTools = lazy(() => import('./tools/DeveloperTools'));
@@ -88,28 +89,24 @@ function ToolWorkspace({ tool }) {
   </section>;
 }
 
-function ToolLockIcon() {
-  return <svg className="tool-lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" /></svg>;
-}
-
 export function Tools({ items = tools }) {
   const { t } = useLanguage();
   const { user } = useSession();
   const [selected, setSelected] = useState('');
   const [search, setSearch] = useState('');
-  const filtered = items.filter(item => `${item.name} ${item.category} ${t(item.name)} ${t(item.category)}`.toLowerCase().includes(search.toLowerCase()));
+  const [pinnedOnly, setPinnedOnly] = useState(false);
   useAgentPage({ page: 'tools', context: { route: '/tools' }, execute(action, beforeApply) {
     const item = items.find(item => item.slug === action.slug && item.visibility === 'public' && item.archivedAt == null && !item.locked && !item.isArchived && item.id);
     if (action.type !== 'open_tool' || !item) return false;
     beforeApply?.();
-    setSearch(''); setSelected(item.slug); return true;
+    setSearch(''); setPinnedOnly(false); setSelected(item.slug); return true;
   } });
   const key = item => item.slug || item.id;
   const tool = items.find(item => key(item) === selected) || items[0];
   const isLocked = item => item.locked === true || (item.visibility === 'limited' && !user);
   return <>
     <div className="page-heading"><span className="eyebrow">{t("THE WORKBENCH / BROWSER UTILITIES")}</span><h1>{t("Small tools.")}<br />{t("Less friction")}<span>.</span></h1><p>{t("A few useful utilities for the little things between builds.")}</p></div>
-    {!tool ? <p>{t("No tools are available yet.")}</p> : <div className="tools-layout"><div className="tool-picker" role="group" aria-label={t("Choose a tool")}><label className="utility-field tool-search">{t("Find a tool")}<input type="search" placeholder={t("Search tools")} value={search} onChange={event => setSearch(event.target.value)} /></label><div className="tool-picker-list">{filtered.map(item => <button key={key(item)} aria-pressed={key(tool) === key(item)} onClick={() => setSelected(key(item))} aria-label={t(item.name)}><span className="picker-icon" aria-hidden="true">{isLocked(item) ? <ToolLockIcon /> : item.icon}</span><span><strong>{t(item.name)}</strong><small>{t(item.category)}</small><VisibilityBadge visibility={item.visibility} showMembers /></span><span aria-hidden="true">↗</span></button>)}{!filtered.length && <p className="mock-note">{t("No matching tools.")}</p>}</div><p className="mock-note">{t(tool.remote ? 'languageTool.privacy' : 'Your input stays in your browser.')}</p></div>
+    {!tool ? <p>{t("No tools are available yet.")}</p> : <div className="tools-layout"><ToolPicker items={items} tool={tool} search={search} setSearch={setSearch} selected={key(tool)} onSelect={setSelected} pinnedOnly={pinnedOnly} setPinnedOnly={setPinnedOnly} />
       {isLocked(tool) ? <section className="tool-workspace tool-access-lock"><div className="workspace-heading"><div><span className="eyebrow">{t('Members')}</span><h2>{t(tool.name)}</h2>{tool.description && <p>{t(tool.description)}</p>}</div><ToolLockIcon /></div><div className="tool-lock-message" role="status"><h3>{t('Members-only tool')}</h3><p>{t('Sign in to use this tool. Public tools are available without an account.')}</p><a className="button-primary" href={siteLink('login')}>{t('Sign in to use this tool')} <span aria-hidden="true">↗</span></a></div></section> : !tool.id ? <p role="status">{t("This tool is unavailable in this version of the portfolio.")}</p> : tool.id === 'language-enhancer' ? <Suspense fallback={<LoadingState label={t('languageTool.preparing')} compact />}><LanguageEnhancer key={key(tool)} tool={tool} /></Suspense> : tool.id === 'html-email' ? <Suspense fallback={<LoadingState label={t("Preparing your builder")} compact />}><HtmlEmailBuilder key={key(tool)} tool={tool} /></Suspense> : ['image', 'powerfx', 'color'].includes(tool.id) ? <Suspense fallback={<LoadingState label={t("Preparing your tool")} compact />}><AdditionalTools key={key(tool)} tool={tool} /></Suspense> : ['markdown', 'credentials', 'lorem', 'timestamp', 'hash', 'jwt', 'cron'].includes(tool.id) ? <Suspense fallback={<LoadingState label={t("Preparing your tool")} compact />}><DeveloperTools key={key(tool)} tool={tool} /></Suspense> : <ToolWorkspace key={key(tool)} tool={tool} />}</div>}
   </>;
 }

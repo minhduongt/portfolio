@@ -1,0 +1,14 @@
+{
+  "filter": "Filter tools", "pin": "Pin", "pinned": "Pinned",
+  "pinName": "Pin {{name}}", "unpinName": "Unpin {{name}}",
+  "star": "Give a star", "unstar": "Remove your star",
+  "starName": "Give {{name}} a star", "unstarName": "Remove your star from {{name}}",
+  "signIn": "Sign in to give a star", "signInName": "Sign in to star {{name}}",
+  "help": "Pins stay in this browser. Stars are saved to your account.",
+  "noPinned": "No pinned tools match. Pin a favorite or view all tools.",
+  "saving": "Saving your star…",
+  "storageUnavailable": "Browser storage is unavailable. These pins will last for this visit only.",
+  "starError": "Your star could not be saved. Please try again. The displayed count has not changed.",
+  "signInError": "Sign in again to save your star.",
+  "notFound": "This tool is no longer available to star. Reload the tools list."
+}
