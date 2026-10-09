@@ -21,6 +21,11 @@ Stars do not unlock member or private tools. Pin and star buttons are separate
 from the workspace selection button and have accessible labels and pressed states.
 Interface labels are available in English and Vietnamese.
 
+The tools list sits inside a bordered panel with a keyboard-accessible collapse/expand
+control. Collapsing removes the sidebar column on desktop and hides the list on mobile;
+the workspace fills the available width. Search, filters, star state and current tool
+drafts survive toggling. Pinned shortcuts remain available above the workspace.
+
 Pinned tools appear only on the Tools page, directly below its title and introduction.
 The bar uses the page's permitted catalogue, updates immediately, scrolls horizontally
 on mobile, and disappears when there are no accessible pins. Hidden/private/archived

@@ -23,6 +23,29 @@ const bar = page.locator('.pinned-tools-bar');
 const open = name => bar.getByRole('link', { name: `Open ${name}`, exact: true });
 try {
   await page.goto(base + 'tools'); await page.getByRole('button', { name: 'JSON Formatter', exact: true }).waitFor();
+  await page.getByLabel('JSON input', { exact: true }).fill('{"draft":true}');
+  await page.getByPlaceholder('Search tools', { exact: true }).fill('JSON');
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 950 });
+    const expanded = await page.locator('.tool-workspace-slot').boundingBox();
+    const toggle = page.getByRole('button', { name: 'Collapse tool list', exact: true });
+    assert.equal(await toggle.getAttribute('aria-controls'), 'tool-list-panel');
+    await toggle.focus(); await page.keyboard.press('Enter');
+    assert.equal(await page.getByRole('button', { name: 'Expand tool list', exact: true }).getAttribute('aria-expanded'), 'false');
+    assert.equal(await page.getByRole('button', { name: 'JSON Formatter', exact: true }).count(), 0, 'Hidden list controls leave the accessibility tree');
+    const collapsed = await page.locator('.tool-workspace-slot').boundingBox();
+    if (width > 700) assert(collapsed.width > expanded.width + 200, 'Collapsing gives the workspace the sidebar width');
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Collapsed panel fits ${width}`);
+    assert.equal(await page.locator('.tool-workspace-slot textarea').first().inputValue(), '{"draft":true}', 'Draft survives collapse');
+    await page.getByRole('button', { name: 'Expand tool list', exact: true }).click();
+    assert.equal(await page.getByPlaceholder('Search tools', { exact: true }).inputValue(), 'JSON', 'Search survives expansion');
+  }
+  await page.locator('.language-switcher button[lang="vi"]').click();
+  await page.getByRole('button', { name: 'Thu gọn danh sách công cụ', exact: true }).click();
+  await page.getByRole('button', { name: 'Mở danh sách công cụ', exact: true }).click();
+  await page.locator('.language-switcher button[lang="en"]').click();
+  await page.getByPlaceholder('Search tools', { exact: true }).fill('');
+  await page.setViewportSize({ width: 390, height: 844 });
   await bar.waitFor({ state: 'hidden' }); assert.equal(await page.getByText('hidden-private').count(), 0, 'Hidden pins are not restored as accessible tools');
   await page.getByRole('button', { name: 'Pin URL Encoder / Decoder', exact: true }).click(); await open('URL Encoder / Decoder').waitFor();
   assert.equal(new URL(await open('URL Encoder / Decoder').getAttribute('href'), base).searchParams.get('tool'), 'url-encoder');

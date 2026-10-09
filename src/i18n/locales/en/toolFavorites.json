@@ -1,4 +1,5 @@
 {
+  "collapseList": "Collapse tool list", "expandList": "Expand tool list", "panelHint": "Hide the list for more workspace.",
   "filter": "Filter tools", "pin": "Pin", "pinned": "Pinned",
   "quickAccess": "Pinned tools quick access", "openName": "Open {{name}}", "loadingPins": "Loading pinned tools…", "retryPins": "Pinned tools unavailable. Retry",
   "pinName": "Pin {{name}}", "unpinName": "Unpin {{name}}",
